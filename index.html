@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAXITL CFA — Plateforme de Formation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --black: #09090b;
+  --dark: #111318;
+  --card: #16191f;
+  --card2: #1c2028;
+  --border: #252b38;
+  --accent: #f5a623;
+  --accent-dim: rgba(245,166,35,0.12);
+  --accent2: #e8521a;
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.12);
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --white: #fff;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+.header{background:var(--dark);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;}
+.logo span{color:var(--muted);font-weight:400;}
+.hbadge{background:var(--accent);color:var(--black);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Space Mono',monospace;letter-spacing:.5px;}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.user-chip strong{color:var(--text);}
+
+/* ── BUTTONS ── */
+.btn{background:var(--accent);color:var(--black);border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.btn:hover{background:#ffc04d;transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;}
+.btn-full{width:100%;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);font-weight:500;}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:none;}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:9px;}
+.btn-green{background:var(--green);}
+.btn-green:hover{background:#16a34a;}
+.btn-red{background:var(--red);}
+.btn-ghost{background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;display:flex;align-items:center;gap:6px;padding:6px 0;transition:color .2s;}
+.btn-ghost:hover{color:var(--accent);}
+
+/* ── FORMS ── */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;}
+.field input,.field select{width:100%;background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:13px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--muted);}
+.field select option{background:var(--dark);}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;}
+.card-sm{padding:16px 20px;}
+
+/* ── CHECKBOX ── */
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .2s;}
+.check-row:hover{border-color:var(--accent);}
+.check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);margin-top:2px;flex-shrink:0;cursor:pointer;}
+.check-row .check-text{font-size:13px;line-height:1.5;color:var(--text);}
+.check-row .check-text small{display:block;color:var(--muted);margin-top:2px;font-size:12px;}
+
+/* ── LOGIN SCREEN ── */
+#login{justify-content:center;align-items:center;padding:40px 20px;background:radial-gradient(ellipse at 50% -10%,#1a1000 0%,var(--black) 55%);}
+.login-box{max-width:440px;width:100%;}
+.login-logo{text-align:center;margin-bottom:32px;}
+.login-logo .big{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--accent);display:block;}
+.login-logo .sub{font-size:14px;color:var(--muted);margin-top:6px;}
+.login-divider{text-align:center;font-size:12px;color:var(--muted);margin:20px 0;font-family:'Space Mono',monospace;letter-spacing:1px;}
+.rgpd-block{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+.rgpd-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:2px;}
+.login-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;margin-top:12px;display:none;}
+.login-error.show{display:block;}
+
+/* ── MENU ── */
+#menu{background:var(--black);}
+.menu-body{flex:1;padding:28px 20px;max-width:860px;margin:0 auto;width:100%;}
+.greeting{margin-bottom:28px;}
+.greeting h2{font-size:22px;font-weight:700;}
+.greeting p{color:var(--muted);margin-top:4px;font-size:14px;}
+.module-tabs{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;}
+.module-tab{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;border:1px solid var(--border);background:var(--card);color:var(--muted);}
+.module-tab.active{background:var(--accent);color:var(--black);border-color:var(--accent);}
+.module-tab.locked{opacity:.4;cursor:not-allowed;}
+.module-content{display:none;}
+.module-content.active{display:block;}
+.section-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:14px;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:480px){.menu-grid{grid-template-columns:1fr;}}
+.menu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-align:left;display:block;width:100%;}
+.menu-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.menu-card .mc-icon{font-size:28px;margin-bottom:10px;}
+.menu-card h3{font-size:15px;font-weight:700;margin-bottom:4px;}
+.menu-card p{font-size:12px;color:var(--muted);line-height:1.5;}
+.progress-bar-wrap{background:var(--border);height:4px;border-radius:2px;margin-top:10px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s;}
+.progress-label{font-size:11px;color:var(--muted);margin-top:4px;font-family:'Space Mono',monospace;}
+
+/* ── COURSE SCREEN ── */
+#course{background:var(--black);}
+.course-body{flex:1;padding:24px 20px;max-width:720px;margin:0 auto;width:100%;}
+.course-header{margin-bottom:24px;}
+.course-num{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+.course-title{font-size:22px;font-weight:700;margin-bottom:8px;}
+.course-meta{display:flex;gap:10px;flex-wrap:wrap;}
+.course-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-family:'Space Mono',monospace;font-weight:700;}
+.cb-level{background:rgba(245,166,35,.15);color:var(--accent);}
+.cb-time{background:rgba(59,130,246,.15);color:#93c5fd;}
+.cb-C1{background:rgba(59,130,246,.2);color:#93c5fd;}
+.cb-C2{background:rgba(245,166,35,.2);color:var(--accent);}
+.cb-C3{background:rgba(232,82,26,.2);color:#fb923c;}
+.cb-C5{background:rgba(34,197,94,.2);color:#86efac;}
+
+.course-section{margin-bottom:24px;}
+.course-section h3{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--accent);display:flex;align-items:center;gap:8px;}
+.course-section h3::before{content:'';display:block;width:3px;height:18px;background:var(--accent);border-radius:2px;}
+.course-context{background:var(--card);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;font-size:14px;line-height:1.7;color:var(--text);}
+.phrase-table{display:flex;flex-direction:column;gap:8px;}
+.phrase-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;}
+@media(max-width:480px){.phrase-row{grid-template-columns:1fr;}}
+.phrase-fr{font-size:13px;color:var(--muted);}
+.phrase-en{font-size:14px;font-weight:600;color:var(--text);}
+.phrase-prono{font-size:11px;color:var(--accent);font-family:'Space Mono',monospace;margin-top:3px;}
+.steps-list{display:flex;flex-direction:column;gap:10px;}
+.step-item{display:flex;gap:14px;align-items:flex-start;background:var(--card);border-radius:10px;padding:14px 16px;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--black);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Mono',monospace;}
+.step-content h4{font-size:14px;font-weight:700;margin-bottom:3px;}
+.step-content p{font-size:13px;color:var(--muted);line-height:1.5;}
+.step-content em{color:var(--accent);font-style:normal;font-family:'Space Mono',monospace;font-size:12px;}
+.pitfalls{display:flex;flex-direction:column;gap:8px;}
+.pitfall{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;padding:10px 14px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:9px;color:#fca5a5;}
+.pitfall span{flex-shrink:0;}
+.course-cta{margin-top:28px;display:flex;gap:10px;}
+
+/* ── SIMULATION SCREEN ── */
+#simulation{background:var(--black);}
+.sim-body{flex:1;display:flex;flex-direction:column;max-width:720px;margin:0 auto;width:100%;padding:16px 20px;}
+.sim-info-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px;}
+.sim-info-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sim-info-top h3{font-size:15px;font-weight:700;}
+.sim-comps{display:flex;gap:5px;}
+.sim-context-txt{font-size:12px;color:var(--muted);line-height:1.5;}
+
+.chat-wrap{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:280px;max-height:380px;margin-bottom:12px;}
+.msg{display:flex;gap:10px;align-items:flex-start;}
+.msg.user{flex-direction:row-reverse;}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.msg.client .av{background:rgba(59,130,246,.2);}
+.msg.user .av{background:var(--accent-dim);}
+.msg.sys .av{background:var(--green-dim);}
+.bubble{max-width:78%;padding:11px 15px;border-radius:13px;font-size:13px;line-height:1.6;}
+.msg.client .bubble{background:var(--dark);border:1px solid var(--border);border-top-left-radius:3px;}
+.msg.user .bubble{background:var(--accent-dim);border:1px solid rgba(245,166,35,.25);border-top-right-radius:3px;text-align:right;}
+.msg.sys .bubble{background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:#86efac;font-size:12px;border-radius:9px;}
+.msg-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;font-family:'Space Mono',monospace;}
+.msg.user .msg-lbl{text-align:right;}
+.typing-dots{display:inline-flex;gap:4px;}
+.typing-dots span{width:5px;height:5px;background:var(--muted);border-radius:50%;animation:td 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+.input-area{display:flex;flex-direction:column;gap:10px;}
+.voice-row{display:flex;gap:8px;align-items:center;}
+.text-row{display:flex;gap:8px;}
+.chat-ta{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;resize:none;min-height:46px;max-height:100px;transition:border-color .2s;}
+.chat-ta:focus{border-color:var(--accent);}
+.send-btn{background:var(--accent);color:var(--black);border:none;border-radius:10px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .2s;flex-shrink:0;}
+.send-btn:hover{background:#ffc04d;}
+.send-btn:disabled{background:var(--border);cursor:not-allowed;}
+
+.voice-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);transition:all .2s;}
+.voice-btn:hover{border-color:var(--accent);}
+.voice-btn.recording{background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red);animation:pulse-rec 1s infinite;}
+@keyframes pulse-rec{0%,100%{opacity:1}50%{opacity:.7}}
+.voice-status{font-size:12px;color:var(--muted);flex:1;}
+.mode-toggle{display:flex;gap:6px;}
+.mode-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .2s;}
+.mode-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.sim-actions-row{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ── QCM ── */
+#qcm{background:var(--black);}
+.qcm-body{flex:1;padding:24px 20px;max-width:680px;margin:0 auto;width:100%;}
+.qprog{background:var(--border);height:3px;border-radius:2px;margin-bottom:22px;overflow:hidden;}
+.qprog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;}
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;}
+.qcounter{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+.qqestion{font-size:17px;font-weight:600;line-height:1.5;margin-bottom:20px;}
+.qopts{display:flex;flex-direction:column;gap:8px;}
+.qopt{background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:13px 16px;cursor:pointer;font-size:13px;transition:all .2s;text-align:left;color:var(--text);font-family:'DM Sans',sans-serif;}
+.qopt:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.qopt.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red);}
+.qopt:disabled{cursor:default;}
+.qfb{margin-top:14px;padding:12px 15px;border-radius:9px;font-size:13px;line-height:1.5;display:none;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--green-dim);border:1px solid rgba(34,197,94,.3);color:#86efac;}
+.qfb.wrong{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+
+/* ── VOCAB ── */
+#vocab{background:var(--black);}
+.vocab-body{flex:1;padding:24px 20px;max-width:820px;margin:0 auto;width:100%;}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+.vcard{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px 16px;transition:border-color .2s;cursor:default;}
+.vcard:hover{border-color:var(--accent);}
+.vfr{font-size:12px;color:var(--muted);margin-bottom:5px;}
+.ven{font-size:14px;font-weight:600;margin-bottom:4px;}
+.vpr{font-size:11px;color:var(--accent);font-family:'Space Mono',monospace;}
+
+/* ── SCORE SCREEN ── */
+#score-screen{justify-content:center;align-items:center;padding:40px 20px;background:var(--black);}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 28px;max-width:500px;width:100%;text-align:center;}
+.score-emoji{font-size:56px;margin-bottom:14px;}
+.score-lbl{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.score-num{font-size:60px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;line-height:1;}
+.score-denom{font-size:16px;color:var(--muted);margin-bottom:18px;}
+.score-status{display:inline-block;padding:8px 18px;border-radius:9px;font-weight:700;font-size:14px;margin-bottom:18px;}
+.ss-ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.ss-ko{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.score-feedback{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;text-align:left;}
+.score-breakdown{display:flex;flex-direction:column;gap:6px;margin-bottom:22px;text-align:left;}
+.sc-row{display:flex;align-items:center;gap:10px;background:var(--dark);border-radius:8px;padding:9px 13px;font-size:12px;}
+.sc-row .sc-pts{margin-left:auto;font-family:'Space Mono',monospace;font-weight:700;min-width:36px;text-align:right;}
+.sc-full{color:var(--green);}
+.sc-half{color:var(--accent);}
+.sc-zero{color:var(--red);}
+.score-btns{display:flex;flex-direction:column;gap:8px;}
+
+/* ── SIM SELECT ── */
+#sim-select{background:var(--black);}
+.ss-body{flex:1;padding:24px 20px;max-width:720px;margin:0 auto;width:100%;}
+.sim-list{display:flex;flex-direction:column;gap:8px;}
+.sim-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;}
+.sim-item:hover{border-color:var(--accent);}
+.sim-num{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);font-weight:700;min-width:28px;}
+.sim-info{flex:1;}
+.sim-info h4{font-size:14px;font-weight:600;}
+.sim-info p{font-size:12px;color:var(--muted);margin-top:2px;}
+.sim-done{font-size:10px;color:var(--green);font-family:'Space Mono',monospace;background:var(--green-dim);padding:2px 8px;border-radius:8px;}
+.sim-lvl{font-size:16px;}
+
+/* ── PAGE TITLES ── */
+.page-hd{margin-bottom:22px;}
+.page-hd h2{font-size:20px;font-weight:700;}
+.page-hd p{font-size:13px;color:var(--muted);margin-top:3px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════ -->
+<div id="login" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="big">TAXITL</span>
+      <span class="sub">Plateforme de Formation — CFA GTL</span>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Prénom</label>
+        <input id="inp-prenom" type="text" placeholder="Ton prénom" autocomplete="given-name"/>
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input id="inp-nom" type="text" placeholder="Ton nom de famille" autocomplete="family-name"/>
+      </div>
+      <div class="field">
+        <label>Date de la session</label>
+        <input id="inp-date" type="date"/>
+      </div>
+      <div class="field">
+        <label>Code d'accès</label>
+        <input id="inp-code" type="password" placeholder="Code fourni par ton formateur"/>
+      </div>
+
+      <div class="login-divider">Consentements RGPD</div>
+      <div class="rgpd-block">
+        <div class="check-row" onclick="toggle('rgpd1')">
+          <input type="checkbox" id="rgpd1" onclick="event.stopPropagation()">
+          <div class="check-text">
+            J'ai lu et j'accepte la politique de confidentialité de TAXITL CFA.
+            <small>Mes données (nom, prénom, scores) sont conservées 3 ans pour des raisons pédagogiques et réglementaires (Qualiopi).</small>
+          </div>
+        </div>
+        <div class="check-row" onclick="toggle('rgpd2')">
+          <input type="checkbox" id="rgpd2" onclick="event.stopPropagation()">
+          <div class="check-text">
+            J'accepte l'utilisation de la <strong>reconnaissance vocale</strong> dans les simulations. <em>(Optionnel — tu peux toujours utiliser le mode texte)</em>
+            <small>Le signal audio est traité instantanément par Chrome et n'est pas enregistré par TAXITL CFA.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-error" id="login-error"></div>
+
+      <button class="btn btn-full" style="margin-top:22px" onclick="doLogin()">Accéder à ma formation →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MENU
+═══════════════════════════════════════ -->
+<div id="menu" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>CFA</span></div>
+    <div class="user-chip">
+      <span id="hdr-name">—</span>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="menu-body">
+    <div class="greeting">
+      <h2 id="greet-name">Bonjour !</h2>
+      <p id="greet-date">Session du —</p>
+    </div>
+
+    <div class="module-tabs">
+      <div class="module-tab active" onclick="switchModule('anglais')">🇬🇧 Anglais M7</div>
+      <div class="module-tab locked" title="Disponible prochainement">📞 Téléprospection</div>
+      <div class="module-tab locked" title="Disponible prochainement">🏦 Banque & Assurance</div>
+      <div class="module-tab locked" title="Disponible prochainement">🏛️ Administration</div>
+    </div>
+
+    <!-- MODULE ANGLAIS -->
+    <div class="module-content active" id="mod-anglais">
+      <div class="section-title">Module M7 — Anglais Relation Client</div>
+      <div class="menu-grid">
+        <button class="menu-card" onclick="goSimSelect()">
+          <div class="mc-icon">🎭</div>
+          <h3>Simulations IA</h3>
+          <p>Jeu de rôle vocal avec un client anglophone virtuel. 10 situations réelles.</p>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="sim-prog-bar" style="width:0%"></div></div>
+          <div class="progress-label" id="sim-prog-lbl">0/10 validées</div>
+        </button>
+        <button class="menu-card" onclick="goQCM()">
+          <div class="mc-icon">🧠</div>
+          <h3>Quiz Vocabulaire</h3>
+          <p>20 questions sur les phrases clés et le vocabulaire professionnel anglais.</p>
+        </button>
+        <button class="menu-card" onclick="showScreen('vocab')">
+          <div class="mc-icon">📖</div>
+          <h3>Lexique de référence</h3>
+          <p>Les 20 expressions essentielles avec prononciation simplifiée.</p>
+        </button>
+        <button class="menu-card" onclick="showProgress()">
+          <div class="mc-icon">📊</div>
+          <h3>Ma progression</h3>
+          <p>Voir mes scores, simulations validées et bilan du module.</p>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SIM SELECT
+═══════════════════════════════════════ -->
+<div id="sim-select" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <div class="hbadge">Simulations</div>
+  </div>
+  <div class="ss-body">
+    <button class="btn-ghost" onclick="showScreen('menu')">← Retour au menu</button>
+    <div class="page-hd" style="margin-top:12px">
+      <h2>Choisir une simulation</h2>
+      <p>Lis le cours avant chaque simulation. Le client IA parlera en anglais.</p>
+    </div>
+    <div class="sim-list" id="sim-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     COURSE
+═══════════════════════════════════════ -->
+<div id="course" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <div class="hbadge" id="course-badge">Cours</div>
+  </div>
+  <div class="course-body">
+    <button class="btn-ghost" onclick="showScreen('sim-select')">← Retour aux simulations</button>
+    <div class="course-header" style="margin-top:12px">
+      <div class="course-num" id="course-num">Simulation 1</div>
+      <div class="course-title" id="course-title">Immediate ride</div>
+      <div class="course-meta" id="course-meta"></div>
+    </div>
+
+    <div class="course-section">
+      <h3>Contexte</h3>
+      <div class="course-context" id="course-ctx"></div>
+    </div>
+
+    <div class="course-section">
+      <h3>Phrases clés à utiliser</h3>
+      <div class="phrase-table" id="course-phrases"></div>
+    </div>
+
+    <div class="course-section">
+      <h3>Étapes de l'appel</h3>
+      <div class="steps-list" id="course-steps"></div>
+    </div>
+
+    <div class="course-section">
+      <h3>Erreurs à éviter</h3>
+      <div class="pitfalls" id="course-pitfalls"></div>
+    </div>
+
+    <div class="course-cta">
+      <button class="btn" onclick="launchSim(currentSimId)">🎭 Je suis prêt(e) — Lancer la simulation</button>
+      <button class="btn btn-outline" onclick="showScreen('sim-select')">Plus tard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SIMULATION
+═══════════════════════════════════════ -->
+<div id="simulation" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <button class="btn btn-outline btn-sm" onclick="endSim()">⏹ Terminer & Évaluer</button>
+  </div>
+  <div class="sim-body">
+    <div class="sim-info-bar">
+      <div class="sim-info-top">
+        <h3 id="sim-title">Simulation</h3>
+        <div class="sim-comps" id="sim-comps"></div>
+      </div>
+      <div class="sim-context-txt" id="sim-ctx-txt"></div>
+    </div>
+
+    <div class="chat-wrap" id="chat-wrap"></div>
+
+    <div class="input-area">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="mode-voice-btn" onclick="setMode('voice')" id="btnModeVoice">🎤 Vocal</button>
+          <button class="mode-btn" id="mode-text-btn" onclick="setMode('text')">⌨️ Texte</button>
+        </div>
+        <button class="btn-ghost" onclick="showHint()">💡 Aide</button>
+      </div>
+
+      <!-- VOICE MODE -->
+      <div id="voice-mode">
+        <div class="voice-row">
+          <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎤 <span id="voice-btn-lbl">Appuyer pour parler</span></button>
+          <div class="voice-status" id="voice-status">Mode vocal actif — Chrome requis</div>
+        </div>
+        <div id="voice-transcript-area" style="display:none;margin-top:8px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Tu as dit :</div>
+          <div id="voice-transcript" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 14px;font-size:13px;min-height:40px;"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-sm btn-green" onclick="sendVoice()">Envoyer ✓</button>
+            <button class="btn btn-sm btn-outline" onclick="cancelVoice()">Recommencer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEXT MODE -->
+      <div id="text-mode" style="display:none;">
+        <div class="text-row">
+          <textarea class="chat-ta" id="chat-ta" placeholder="Tape ta réponse en anglais..." rows="1" onkeydown="handleEnter(event)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendText()">➤</button>
+        </div>
+      </div>
+
+      <div class="sim-actions-row">
+        <button class="btn btn-outline btn-sm" onclick="showScreen('course'); loadCourse(currentSimId)">📖 Revoir le cours</button>
+        <button class="btn btn-outline btn-sm" onclick="endSim()">🏁 Terminer & Évaluer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     QCM
+═══════════════════════════════════════ -->
+<div id="qcm" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <div class="hbadge">Quiz</div>
+  </div>
+  <div class="qcm-body">
+    <button class="btn-ghost" onclick="showScreen('menu')">← Retour</button>
+    <div class="qprog" style="margin-top:14px"><div class="qprog-fill" id="qprog-fill" style="width:0%"></div></div>
+    <div class="qcard">
+      <div class="qcounter" id="qcounter">Question 1/20</div>
+      <div class="qqestion" id="qqestion"></div>
+      <div class="qopts" id="qopts"></div>
+      <div class="qfb" id="qfb"></div>
+      <button class="btn btn-full" id="qnext" onclick="nextQ()" style="display:none;margin-top:14px">Question suivante →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VOCAB
+═══════════════════════════════════════ -->
+<div id="vocab" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <div class="hbadge">Lexique</div>
+  </div>
+  <div class="vocab-body">
+    <button class="btn-ghost" onclick="showScreen('menu')">← Retour</button>
+    <div class="page-hd" style="margin-top:12px">
+      <h2>Phrases clés — Module M7</h2>
+      <p>Les 20 expressions essentielles avec prononciation simplifiée.</p>
+    </div>
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCORE
+═══════════════════════════════════════ -->
+<div id="score-screen" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px;">
+    <div class="score-card">
+      <div class="score-emoji" id="sc-emoji">🏆</div>
+      <div class="score-lbl" id="sc-lbl">Score</div>
+      <div class="score-num" id="sc-num">0</div>
+      <div class="score-denom" id="sc-denom">/24</div>
+      <div class="score-status" id="sc-status"></div>
+      <div class="score-feedback" id="sc-fb"></div>
+      <div class="score-breakdown" id="sc-breakdown"></div>
+      <div class="score-btns">
+        <button class="btn" id="sc-replay" onclick="replaySim()">🔄 Rejouer</button>
+        <button class="btn btn-outline" onclick="showScreen('sim-select')">Choisir une autre simulation</button>
+        <button class="btn btn-outline" onclick="showScreen('menu')">Retour au menu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const ACCESS_CODE = "TaxiTLformation";
+
+const VOCAB_DATA = [
+  {fr:"Bonjour, [Prénom], je vous écoute",en:"Hello, [name] speaking, how can I help?",pr:"hélô... spîkiNG haou kan aï hélp"},
+  {fr:"Adresse de départ ?",en:"What is your pick-up address?",pr:"wot iz yor pik-ôp adress"},
+  {fr:"Destination ?",en:"Where would you like to go?",pr:"wèr woud you laïk tou gô"},
+  {fr:"Pour quelle heure exactement ?",en:"For what time exactly?",pr:"for wot taïm egzaktli"},
+  {fr:"Combien de personnes ?",en:"How many passengers?",pr:"haou méni pasèndjerz"},
+  {fr:"Avez-vous des bagages ?",en:"Do you have any luggage?",pr:"dou you hav éni lôguidj"},
+  {fr:"Votre nom et téléphone ?",en:"May I have your name and phone number?",pr:"méi aï hav yor néim and fôn nômbr"},
+  {fr:"Je confirme votre réservation",en:"I confirm your booking",pr:"aï konferm yor bouking"},
+  {fr:"Le chauffeur arrive dans X min",en:"The driver will be there in X minutes",pr:"de draïver wil bi dèr in X minits"},
+  {fr:"Pouvez-vous patienter ?",en:"Could you please hold on a moment?",pr:"koud you pliz hôld on a môment"},
+  {fr:"Je suis désolé pour ce désagrément",en:"I'm very sorry for the inconvenience",pr:"aïm véri sori for di inkônviniens"},
+  {fr:"Avec un panneau à votre nom",en:"With a sign with your name on it",pr:"wid a saïn wid yor néim on it"},
+  {fr:"Votre numéro de vol ?",en:"What is your flight number?",pr:"wot iz yor flaït nômbr"},
+  {fr:"Quel terminal ?",en:"Which terminal, please?",pr:"witch terminal pliz"},
+  {fr:"Pouvez-vous épeler ?",en:"Could you please spell that?",pr:"koud you pliz spél dat"},
+  {fr:"Plus lentement SVP",en:"Could you speak more slowly, please?",pr:"koud you spik mor slôli pliz"},
+  {fr:"J'ai bien compris",en:"I understand. / Got it.",pr:"aï ônderstand / got it"},
+  {fr:"Bon voyage",en:"Have a good trip / safe journey",pr:"hav a good trip / séïf djerni"},
+  {fr:"Votre réservation est confirmée",en:"Your booking is confirmed",pr:"yor bouking iz konfermD"},
+  {fr:"Pas de problème",en:"No problem. / Of course.",pr:"nô prôblèm / ov kors"},
+];
+
+const SIMS = [
+  {
+    id:1, title:"Immediate ride", sub:"Course immédiate", level:"⭐", comps:["C1"],
+    context:"Un client anglophone appelle pour une course immédiate. Tu joues le rôle du conseiller TAXITL. Tu dois collecter toutes les informations nécessaires et confirmer professionnellement.",
+    maxScore:24, threshold:17,
+    courseCtx:"Un client anglophone appelle pour un taxi immédiat. Il est pressé mais poli. Ton rôle : accueillir, qualifier l'appel en posant les 5 questions obligatoires, donner un délai précis et un point de rendez-vous clair.",
+    phrases:[
+      {fr:"Bonjour, je vous écoute",en:"Hello, [prénom] speaking, how can I help?"},
+      {fr:"Adresse de départ ?",en:"What is your pick-up address?"},
+      {fr:"Destination ?",en:"Where would you like to go?"},
+      {fr:"Combien de personnes ?",en:"How many people / passengers?"},
+      {fr:"Des bagages ?",en:"Do you have any luggage?"},
+      {fr:"Votre nom et téléphone ?",en:"May I have your name and phone number?"},
+      {fr:"Délai précis",en:"The driver will be there in X minutes"},
+      {fr:"Point de RDV",en:"Please wait in front of [lieu précis]"},
+    ],
+    steps:[
+      {n:"1",title:"Accueil",desc:"Formule complète en anglais.",eg:"Hello, [prénom] speaking, how can I help?"},
+      {n:"2",title:"Q1 — Adresse de départ",desc:"Demander l'adresse de prise en charge.",eg:"What is your pick-up address?"},
+      {n:"3",title:"Q2 — Destination",desc:"Demander où le client souhaite aller.",eg:"Where would you like to go?"},
+      {n:"4",title:"Q4 — Personnes & bagages",desc:"Nombre de passagers, puis bagages proactivement.",eg:"How many passengers? / Do you have any luggage?"},
+      {n:"5",title:"Q5 — Nom & téléphone",desc:"Nom complet et numéro avec indicatif pays.",eg:"May I have your name and phone number?"},
+      {n:"6",title:"Confirmation & clôture",desc:"Délai précis + point de RDV + formule de clôture.",eg:"The driver will be there in 7 minutes. Have a good ride!"},
+    ],
+    pitfalls:["Ne pas donner de délai vague (\"soon\", \"in a moment\") — toujours un chiffre précis.","Ne pas oublier la question bagages — le client ne le dira pas toujours spontanément.","Ne pas commencer par justifier avant d'avoir identifié le client."],
+    clientCard:"You are: James Miller, British tourist in Lyon. You need a taxi RIGHT NOW from 12 King Street, Lyon to Gare Part-Dieu. 1 person, 1 suitcase. Phone: +44 7700 900123. Friendly, slightly in a hurry.",
+    systemPrompt:`You are James Miller, a British tourist in Lyon who needs an immediate taxi. Respond ONLY in English. Be realistic: don't give all information at once, wait to be asked. Pick-up: "12 King Street, Lyon". Destination: "Gare Part-Dieu". 1 person, 1 suitcase. Phone: "+44 7700 900123". Friendly but slightly in a hurry. Keep responses to 1-2 sentences.`,
+    criteria:[
+      {label:"Formule d'accueil complète en anglais",comp:"C1",max:3},
+      {label:"Q1 — Adresse de départ demandée",comp:"C1",max:3},
+      {label:"Q2 — Destination",comp:"C1",max:3},
+      {label:"Q4 — Nombre de personnes",comp:"C1",max:3},
+      {label:"Question bagages posée proactivement",comp:"C1",max:3},
+      {label:"Q5 — Nom + téléphone avec indicatif",comp:"C1",max:3},
+      {label:"Délai précis communiqué",comp:"C1",max:3},
+      {label:"Point de RDV précis",comp:"C1",max:3},
+    ],
+  },
+  {
+    id:2, title:"Reservation for tomorrow", sub:"Réservation à l'avance", level:"⭐⭐", comps:["C1","C2","C5"],
+    context:"Famille américaine avec enfant réserve un taxi pour l'aéroport. Points clés : siège enfant, bagages importants, reformulation complète.",
+    maxScore:24, threshold:17,
+    courseCtx:"Une famille américaine appelle pour réserver un taxi pour demain matin direction l'aéroport. Ils voyagent avec un enfant de 5 ans et 3 grandes valises. Points critiques : demander le siège enfant proactivement et donner l'information légale (non obligatoire en taxi France), vérifier que le véhicule peut accueillir 3 grosses valises, et reformuler TOUT avant de confirmer.",
+    phrases:[
+      {fr:"Pour quelle date et heure exactement ?",en:"For which date and time exactly?"},
+      {fr:"Siège enfant ?",en:"Would you like a child seat? It's not mandatory in French taxis, but we can arrange it."},
+      {fr:"Des bagages ?",en:"Do you have any luggage?"},
+      {fr:"Je confirme... est-ce correct ?",en:"I confirm your booking: [résumé complet]. Is that correct?"},
+      {fr:"Panneau à votre nom",en:"The driver will wait with a sign with your name."},
+      {fr:"Bon vol",en:"Have a good flight!"},
+    ],
+    steps:[
+      {n:"1",title:"Accueil & Q1 à Q5",desc:"Poser toutes les questions : adresse, destination, date/heure, nombre personnes, bagages, nom, téléphone.",eg:"Certainly. What is your departure address?"},
+      {n:"2",title:"Siège enfant — proactif",desc:"Si enfant mentionné, proposer le siège immédiatement avec l'info légale.",eg:"Would you like a child seat? Please note it's not mandatory in taxis in France, but we can arrange it."},
+      {n:"3",title:"Vérification véhicule",desc:"3 grandes valises = vérifier mentalement qu'un véhicule adapté est disponible.",eg:"Thank you, I note 3 large bags."},
+      {n:"4",title:"Reformulation complète",desc:"Tout récapituler avant de confirmer — sans rien oublier.",eg:"I confirm: Thursday 21st at 7:00 AM from 85 Rue de la République to the airport, 2 adults + 1 child with child seat, 3 large bags. Is that correct?"},
+      {n:"5",title:"Clôture fidélisante",desc:"Clôture adaptée au contexte aéroport.",eg:"Have a good flight!"},
+    ],
+    pitfalls:["Oublier de demander le siège enfant si un enfant est mentionné — critique C2.","Ne pas donner l'info légale sur le siège enfant en France.","Reformulation incomplète — tout doit être récapitulé.","Oublier de mentionner le panneau au nom à l'aéroport."],
+    clientCard:"You are: Sarah Johnson, American tourist with husband and 5yo child. Book for Thursday Aug 21 at 7 AM from 85 Rue de la République to Lyon Airport. 3 large bags. Phone: +1 646 555 0245. Ask about child seat if not offered.",
+    systemPrompt:`You are Sarah Johnson, American tourist booking a taxi for tomorrow morning. Respond ONLY in English. Departure: "85 Rue de la République, Lyon". Destination: "Lyon Saint-Exupéry Airport". Thursday August 21 at 7:00 AM. 2 adults + 1 child (5 years). 3 large bags. Phone: "+1 646 555 0245". If child seat not mentioned before end: ask "Do you provide child seats?" Keep responses short.`,
+    criteria:[
+      {label:"Formule d'accueil complète",comp:"C1",max:3},
+      {label:"Q1 à Q5 posées toutes les 5",comp:"C1",max:3},
+      {label:"Question proactive siège enfant + info légale",comp:"C2",max:3},
+      {label:"Information légale siège taxi France communiquée",comp:"C2",max:3},
+      {label:"Mention 3 bagages → vérification véhicule adapté",comp:"C1",max:3},
+      {label:"Reformulation synthèse complète avant confirmation",comp:"C1",max:3},
+      {label:"Mention panneau au nom à l'aéroport",comp:"C1",max:3},
+      {label:"Clôture fidélisante \"good flight\"",comp:"C5",max:3},
+    ],
+  },
+  {
+    id:3, title:"Customer waiting", sub:"Client impatient — retard chauffeur", level:"⭐⭐", comps:["C1","C3"],
+    context:"Client mécontent : son taxi commandé il y a 20 min n'est pas arrivé. Rester calme, identifier, donner info précise.",
+    maxScore:18, threshold:13,
+    courseCtx:"Un client australien a commandé un taxi il y a 20 minutes et il n'est toujours pas là. Il est stressé car il doit prendre un train. Règle d'or C3 : rester calme, ne JAMAIS se justifier avant d'avoir identifié le client, donner une information précise (modèle du véhicule + délai exact). Si tu es vague, le client s'énerve encore plus.",
+    phrases:[
+      {fr:"Je comprends, ne vous inquiétez pas",en:"I understand, don't worry — I'll check right away."},
+      {fr:"Votre nom ?",en:"May I have your name please?"},
+      {fr:"Un instant, je vérifie",en:"Please hold on for just a moment while I check."},
+      {fr:"Votre chauffeur arrive dans X min",en:"Your driver is X minutes away. He's in a [couleur + modèle]."},
+      {fr:"Vous attraperez votre train",en:"Don't worry, you will catch your train."},
+    ],
+    steps:[
+      {n:"1",title:"Réassurance immédiate",desc:"Rester calme. Ne pas se justifier. Agir immédiatement.",eg:"I understand, don't worry — I'll check right away."},
+      {n:"2",title:"Identification avant tout",desc:"Ne jamais donner d'info avant d'avoir identifié le client.",eg:"May I have your name please? And your phone number?"},
+      {n:"3",title:"Consultation & info précise",desc:"Délai exact + description du véhicule. Jamais vague.",eg:"Mr. Brown, your driver is 2 minutes away. He's in a black Peugeot 508."},
+      {n:"4",title:"Réassurance sur l'objectif",desc:"Rassurer sur le train sans faire de promesse impossible.",eg:"Don't worry, you will catch your train."},
+      {n:"5",title:"Clôture sobre",desc:"Pas trop de mots. Sobre et professionnel.",eg:"Your driver will be there shortly. Have a good journey."},
+    ],
+    pitfalls:["Dire 'he'll be there soon' sans délai précis — le client va insister.","Se justifier ('there's a lot of traffic') avant d'identifier — très mal perçu.","Promettre 'you WILL catch your train' si on n'est pas sûr — préférer 'you should'."],
+    clientCard:"You are: Michael Brown, Australian businessman. Taxi booked 20 min ago, still not here. Need to catch a train. Phone: +61 400 123 456. Impatient but not rude. If adviser gives precise info (ETA + car): calm down.",
+    systemPrompt:`You are Michael Brown, Australian businessman. You booked a TAXITL taxi 20 minutes ago and it hasn't arrived. You need to catch a train. Respond ONLY in English. Start stressed and impatient. Phone: "+61 400 123 456". If adviser stays calm and gives precise info (exact ETA + car color/model): gradually calm down. If vague ("soon"): say "But when EXACTLY? I'm going to miss my train!" Keep responses short.`,
+    criteria:[
+      {label:"Calme maintenu face au ton stressé",comp:"C3",max:3},
+      {label:"Pas de justification avant l'identification",comp:"C3",max:3},
+      {label:"Identification complète avant consultation CRM",comp:"C1",max:3},
+      {label:"Information précise : délai + description véhicule",comp:"C3",max:3},
+      {label:"Réassurance sur le train — pas de promesse vague",comp:"C3",max:3},
+      {label:"Clôture professionnelle sobre",comp:"C1",max:3},
+    ],
+  },
+  {
+    id:4, title:"Airport arrival", sub:"Client à l'aéroport — chauffeur introuvable", level:"⭐⭐", comps:["C1","C2"],
+    context:"Cliente vient d'atterrir, ne voit pas son chauffeur. Rassurer immédiatement, localiser le chauffeur, gérer les bagages.",
+    maxScore:18, threshold:13,
+    courseCtx:"Une femme d'affaires britannique vient d'atterrir à l'aéroport de Lyon et ne voit pas son chauffeur TAXITL. Elle est légèrement inquiète mais polie. Ta mission : rassurer immédiatement avec 'No problem', identifier, lui expliquer précisément où est le chauffeur (sortie du terminal avec panneau à son nom), et gérer proactivement la question des bagages.",
+    phrases:[
+      {fr:"Pas de problème",en:"No problem — let me check for you."},
+      {fr:"Votre chauffeur vous attend",en:"Your driver is waiting for you at the terminal exit with a sign with your name."},
+      {fr:"Des bagages à récupérer ?",en:"Do you have luggage to collect?"},
+      {fr:"Votre chauffeur attendra",en:"Your driver will wait for you — take all the time you need."},
+      {fr:"Bon séjour à Lyon",en:"Have a good stay in Lyon!"},
+    ],
+    steps:[
+      {n:"1",title:"Réassurance immédiate",desc:"'No problem' en premier. Pas de question avant.",eg:"No problem, may I have your name please?"},
+      {n:"2",title:"Identification",desc:"Nom + téléphone pour retrouver la réservation.",eg:"Can I also have your phone number?"},
+      {n:"3",title:"Position précise du chauffeur",desc:"Sortie du terminal + panneau au nom — être très précis.",eg:"Your driver is waiting at the terminal exit with a sign with your name."},
+      {n:"4",title:"Question bagages proactive",desc:"Elle a peut-être des bagages en soute — demander.",eg:"Do you have any luggage to collect?"},
+      {n:"5",title:"Réassurance sur l'attente",desc:"Le chauffeur attendra — pas de pression.",eg:"Your driver will wait for you, take all the time you need."},
+      {n:"6",title:"Clôture personnalisée",desc:"Souhait adapté à Lyon.",eg:"Have a good stay in Lyon!"},
+    ],
+    pitfalls:["Commencer par une question avant de rassurer — 'No problem' doit être la première chose dite.","Ne pas mentionner le panneau au nom — le client va chercher au mauvais endroit.","Oublier la question bagages — elle a peut-être des valises en soute."],
+    clientCard:"You are: Emma Wilson, British businesswoman. Just landed at Lyon Airport. Can't see driver. Phone: +44 7911 123456. 2 bags to collect. Slightly worried. If adviser is clear: quickly reassured.",
+    systemPrompt:`You are Emma Wilson, British businesswoman. Just landed at Lyon Saint-Exupéry Airport. Cannot see your TAXITL driver. Respond ONLY in English. Slightly worried but polite. Phone: "+44 7911 123456". 2 bags at luggage carousel. If adviser says "No problem" and gives clear info (terminal exit + name sign): become quickly relieved. Keep responses short.`,
+    criteria:[
+      {label:"Réassurance immédiate \"No problem\"",comp:"C2",max:3},
+      {label:"Identification complète avant consultation",comp:"C1",max:3},
+      {label:"Info précise position chauffeur (terminal exit + panneau)",comp:"C2",max:3},
+      {label:"Question proactive sur les bagages",comp:"C2",max:3},
+      {label:"Réassurance sur l'attente chauffeur",comp:"C2",max:3},
+      {label:"Clôture personnalisée \"good stay in Lyon\"",comp:"C5",max:3},
+    ],
+  },
+  {
+    id:5, title:"Booking confirmation", sub:"Confirmation de réservation web", level:"⭐", comps:["C1"],
+    context:"Client a réservé en ligne et veut confirmer. Le conseiller doit identifier, consulter le CRM et reformuler fidèlement.",
+    maxScore:18, threshold:13,
+    courseCtx:"Un client américain a réservé un taxi sur le site TAXITL et veut s'assurer que sa réservation est bien enregistrée. C'est un appel simple mais qui teste la rigueur : identification avant consultation, lecture fidèle du dossier, question tag de confirmation ('is that correct?'), et clôture avec une question ouverte ('anything else?').",
+    phrases:[
+      {fr:"Je cherche dans notre système",en:"Let me check in our system. [Pause]"},
+      {fr:"Je vois votre réservation",en:"I see your booking: [détails complets]... is that correct?"},
+      {fr:"Votre réservation est confirmée",en:"Your booking is confirmed."},
+      {fr:"Autre chose ?",en:"Is there anything else I can help you with?"},
+      {fr:"Bon voyage",en:"Have a good trip, Mr/Ms [nom]!"},
+    ],
+    steps:[
+      {n:"1",title:"Identification avant tout",desc:"Nom + téléphone AVANT de chercher dans le système.",eg:"May I have your name and phone number please?"},
+      {n:"2",title:"Consultation & lecture fidèle",desc:"Lire tous les détails du dossier — sans rien inventer.",eg:"I see your booking: Friday August 22nd at 3:00 PM from 25 Rue Garibaldi to Gare Part-Dieu..."},
+      {n:"3",title:"Question tag de confirmation",desc:"Toujours terminer la reformulation par une question.",eg:"...Two persons, one suitcase. Is that correct?"},
+      {n:"4",title:"Confirmation claire",desc:"Confirmer la réservation explicitement.",eg:"Your booking is confirmed."},
+      {n:"5",title:"Question ouverte de clôture",desc:"Toujours proposer une aide supplémentaire.",eg:"Is there anything else I can help you with?"},
+    ],
+    pitfalls:["Chercher dans le système avant d'identifier le client — erreur de procédure.","Oublier la question tag ('is that correct?') — le client peut avoir des corrections à faire.","Sauter la question 'anything else?' — manque de service."],
+    clientCard:"You are: Daniel Harris, American tourist. Booked taxi: Friday Aug 22 at 3 PM from 25 Rue Garibaldi to Gare Part-Dieu. 2 persons, 1 suitcase. Phone: +1 213 555 0199. Calm, wants quick confirmation.",
+    systemPrompt:`You are Daniel Harris, American tourist. Booked on TAXITL website: Friday August 22 at 3:00 PM, from "25 Rue Garibaldi" to "Gare Part-Dieu", 2 persons, 1 suitcase. Phone: "+1 213 555 0199". Calm. If adviser reads back all details correctly: confirm happily. If any detail is wrong: politely correct it. Keep responses short.`,
+    criteria:[
+      {label:"Identification avant consultation CRM",comp:"C1",max:3},
+      {label:"Lecture complète et fidèle du dossier CRM",comp:"C1",max:3},
+      {label:"Reformulation avec question tag (is that correct?)",comp:"C1",max:3},
+      {label:"Confirmation claire de la réservation",comp:"C1",max:3},
+      {label:"Question ouverte de clôture (anything else?)",comp:"C1",max:3},
+      {label:"Clôture personnalisée",comp:"C5",max:3},
+    ],
+  },
+  {
+    id:6, title:"Airport departure", sub:"Départ domicile → aéroport avec vol précis", level:"⭐⭐", comps:["C1","C2"],
+    context:"Réservation aéroport avec contrainte de vol. Demander l'heure de vol avec justification et vérifier la cohérence horaire.",
+    maxScore:18, threshold:13,
+    courseCtx:"Un homme d'affaires britannique réserve un taxi pour l'aéroport demain matin. La particularité : il a un vol précis. Tu dois demander l'heure de vol proactivement (avec une justification) pour vérifier que la prise en charge à 5h30 est cohérente avec un vol à 8h00. C'est une compétence C2 : anticiper les besoins du client.",
+    phrases:[
+      {fr:"Heure de vol ? (avec justification)",en:"Can you tell me your flight time? This helps us make sure you arrive comfortably."},
+      {fr:"Panneau au nom",en:"The driver will wait for you at the terminal exit with a sign with your name."},
+      {fr:"Confirmation complète",en:"I confirm: [résumé]. Your booking is confirmed. Have a good flight!"},
+    ],
+    steps:[
+      {n:"1",title:"Q1 à Q5 complètes",desc:"Poser toutes les questions obligatoires.",eg:"What is your departure address? / Where would you like to go? / For what time?"},
+      {n:"2",title:"Question vol proactive + justification",desc:"Ne pas attendre que le client le dise — le demander avec une raison.",eg:"Can you tell me your flight time? This helps us make sure you arrive comfortably."},
+      {n:"3",title:"Vérification cohérence horaire",desc:"5h30 de départ pour un vol à 8h00 = OK pour Lyon Airport (environ 30 min de trajet).",eg:"Perfect, 5:30 AM for an 8:00 AM flight — that's very comfortable."},
+      {n:"4",title:"Confirmation complète + clôture",desc:"Tout confirmer + panneau au nom + clôture aéroport.",eg:"The driver will wait at the terminal exit with a sign with your name. Have a good flight!"},
+    ],
+    pitfalls:["Ne pas demander l'heure de vol — manque de C2.","Demander le vol sans expliquer pourquoi — le client peut trouver ça intrusif.","Oublier le panneau au nom à l'aéroport."],
+    clientCard:"You are: Richard Taylor, British businessman. Taxi to airport: 42 Avenue Jean Jaurès tomorrow Aug 21 at 5:30 AM to Lyon Airport. 2 adults, 2 large suitcases. Phone: +44 7800 555 321. Flight 8:00 AM to London. Only mention flight if asked.",
+    systemPrompt:`You are Richard Taylor, British businessman. Need taxi to airport. Departure: "42 Avenue Jean Jaurès, Lyon". Destination: "Lyon Saint-Exupéry Airport". Tomorrow August 21 at 5:30 AM. 2 adults, 2 large suitcases. Phone: "+44 7800 555 321". Flight: "8:00 AM to London Heathrow" — ONLY mention if specifically asked. Professional, efficient. Keep responses short.`,
+    criteria:[
+      {label:"Q1 à Q5 posées toutes les 5",comp:"C1",max:3},
+      {label:"Question vol avec justification",comp:"C2",max:3},
+      {label:"Cohérence heure prise en charge / vol",comp:"C2",max:3},
+      {label:"Mention panneau au nom à l'aéroport",comp:"C1",max:3},
+      {label:"Confirmation complète avant clôture",comp:"C1",max:3},
+      {label:"Clôture aéroport \"good flight\"",comp:"C5",max:3},
+    ],
+  },
+  {
+    id:7, title:"Train arrival", sub:"Arrivée train — groupe avec bagages", level:"⭐⭐", comps:["C1","C2"],
+    context:"Groupe arrivant en train à Part-Dieu. Coordination chauffeur et gestion proactive du risque de retard.",
+    maxScore:21, threshold:15,
+    courseCtx:"Un groupe de touristes américains doit prendre un taxi à la gare Part-Dieu à l'arrivée de leur train. Point critique C2 : anticiper proactivement le risque de retard du train — si le conseiller ne le mentionne pas, le client le demandera. Le point de rendez-vous en gare doit être très précis (sortie principale + panneau).",
+    phrases:[
+      {fr:"Heure d'arrivée du train ?",en:"Can you give me your train arrival time?"},
+      {fr:"Point de RDV en gare",en:"The driver will wait at the main exit with a sign with your name."},
+      {fr:"Si retard du train",en:"Please call us if your train is delayed — we will adjust the driver's time."},
+      {fr:"Bon voyage",en:"Have a good journey! / We'll be waiting for you."},
+    ],
+    steps:[
+      {n:"1",title:"Identification + heure de train",desc:"Commencer par identifier, puis demander l'heure d'arrivée du train.",eg:"Can you give me your train arrival time?"},
+      {n:"2",title:"Destination & groupe",desc:"Destination, nombre de personnes, bagages.",eg:"And what is your destination? / How many people are you?"},
+      {n:"3",title:"Point de RDV précis en gare",desc:"Sortie principale, panneau au nom.",eg:"Your driver will wait at the main exit of Part-Dieu with a sign with your name."},
+      {n:"4",title:"Gestion retard train — proactive",desc:"Anticiper sans attendre que le client le demande.",eg:"Please call us if your train is delayed — we will adjust the driver's schedule."},
+      {n:"5",title:"Clôture chaleureuse",desc:"",eg:"Have a good journey! We'll be waiting for you."},
+    ],
+    pitfalls:["Ne pas mentionner la procédure en cas de retard — le client le demandera systématiquement.","Point de RDV vague ('in front of the station') — il faut la sortie principale.","Oublier le panneau au nom."],
+    clientCard:"You are: Olivia Green, American tourist leading group. Train arrives 18:15 from Paris at Gare Part-Dieu. 3 adults, 3 medium suitcases. Destination: Sofitel Lyon Bellecour, 20 Quai Gailleton. Phone: +1 310 555 7845. If no mention of late train: ask 'What if our train is delayed?'",
+    systemPrompt:`You are Olivia Green, American tourist leading a group. Need taxi at Gare Part-Dieu. Train arrives 18:15 from Paris. 3 adults, 3 medium suitcases. Destination: "Sofitel Lyon Bellecour, 20 Quai Gailleton". Phone: "+1 310 555 7845". IMPORTANT: if adviser doesn't mention what to do if train is late before ending call, ask "What if our train is delayed?" Friendly and organised. Keep responses short.`,
+    criteria:[
+      {label:"Question heure d'arrivée du train",comp:"C1",max:3},
+      {label:"Destination demandée",comp:"C1",max:3},
+      {label:"Q4 et option bagages posées",comp:"C1",max:3},
+      {label:"Point de RDV précis (sortie principale + panneau)",comp:"C2",max:3},
+      {label:"Information proactive sur gestion du retard train",comp:"C2",max:3},
+      {label:"Invitation à rappeler si retard",comp:"C2",max:3},
+      {label:"Clôture chaleureuse",comp:"C5",max:3},
+    ],
+  },
+  {
+    id:8, title:"Lost wallet", sub:"Portefeuille oublié dans le taxi", level:"⭐⭐⭐", comps:["C1","C2","C3"],
+    context:"Client paniqué a oublié son portefeuille dans un taxi. Situation urgente : rassurer, identifier, trouver le chauffeur, solution concrète.",
+    maxScore:24, threshold:17,
+    courseCtx:"Situation avancée C3 : un touriste britannique a oublié son portefeuille dans un taxi TAXITL. Il est légèrement paniqué. Ta mission : réassurer immédiatement ('don't worry'), identifier le client, lui demander les détails du trajet pour retrouver le bon chauffeur, mettre en attente professionnellement, contacter le chauffeur en direct, et proposer une solution concrète avec un délai précis et un point de rendez-vous.",
+    phrases:[
+      {fr:"Ne vous inquiétez pas",en:"I understand, don't worry — I'll check right away."},
+      {fr:"Détails du trajet",en:"Do you remember the time and departure address of your trip?"},
+      {fr:"Un instant, je contacte le chauffeur",en:"Please hold on while I contact the driver directly."},
+      {fr:"Solution concrète",en:"The driver found your wallet. He can meet you at [lieu] in about [X] minutes."},
+      {fr:"Confirmation finale",en:"Is that okay for you?"},
+    ],
+    steps:[
+      {n:"1",title:"Réassurance immédiate",desc:"'Don't worry' avant toute question.",eg:"I understand, don't worry — I'll check right away."},
+      {n:"2",title:"Identification complète",desc:"Nom + téléphone pour retrouver la réservation.",eg:"May I have your name and phone number?"},
+      {n:"3",title:"Détails du trajet",desc:"Pour identifier le bon chauffeur parmi tous les courses.",eg:"Do you remember the time and your departure address?"},
+      {n:"4",title:"Mise en attente professionnelle",desc:"Expliquer clairement pourquoi on met en attente.",eg:"Please hold on while I contact the driver directly."},
+      {n:"5",title:"Solution concrète",desc:"Délai précis + point de RDV précis.",eg:"The driver found your wallet. He can be at Gare Part-Dieu in about 10 minutes, in front of Fnac."},
+      {n:"6",title:"Confirmation finale",desc:"Toujours valider avec le client.",eg:"Is that okay for you?"},
+    ],
+    pitfalls:["Donner une solution floue ('the driver will come back') sans délai ni lieu précis.","Ne pas mettre en attente — agir en direct sans expliquer ce qu'on fait.","Oublier de demander les détails du trajet — impossible de retrouver le bon chauffeur sans ça."],
+    clientCard:"You are: David Thompson, British tourist. Left wallet in TAXITL taxi. Left from 25 Rue Victor Hugo ~20 min ago, went to Gare Part-Dieu. Brown leather wallet. Phone: +44 7700 888 234. Slightly panicked. If adviser is efficient: very relieved.",
+    systemPrompt:`You are David Thompson, British tourist. You left your wallet in a TAXITL taxi. Start slightly panicked. Trip: departed "25 Rue Victor Hugo" about 20 minutes ago, destination "Gare Part-Dieu". Brown leather wallet — only say this if specifically asked. Phone: "+44 7700 888 234". If adviser efficiently reassures, identifies you, asks trip details, and gives concrete solution (driver found it, meeting point + ETA): become very relieved and grateful. Keep responses short.`,
+    criteria:[
+      {label:"Réassurance immédiate \"don't worry\"",comp:"C2",max:3},
+      {label:"Identification complète avant action",comp:"C1",max:3},
+      {label:"Questions sur le trajet pour identifier le chauffeur",comp:"C2",max:3},
+      {label:"Mise en attente professionnelle avec explication",comp:"C3",max:3},
+      {label:"Contact chauffeur en direct",comp:"C2",max:3},
+      {label:"Solution concrète avec délai précis",comp:"C2",max:3},
+      {label:"Point de RDV précis",comp:"C2",max:3},
+      {label:"Confirmation finale avant clôture",comp:"C1",max:3},
+    ],
+  },
+  {
+    id:9, title:"Unknown location", sub:"Client perdu — géolocalisation par repères", level:"⭐⭐⭐", comps:["C1","C2"],
+    context:"Client touristique ne connaît pas son adresse. Technique de géolocalisation par repères visuels.",
+    maxScore:18, threshold:13,
+    courseCtx:"Un touriste américain est complètement perdu à Lyon et ne connaît pas l'adresse où il se trouve. Technique C2 avancée : la géolocalisation par repères visuels. Tu demandes ce qu'il voit autour de lui (enseignes, restaurants, monuments), et tu identifies sa position à partir de ces indices. Dans ce cas, il voit 'Bocuse' = Restaurant Paul Bocuse à Collonges-au-Mont-d'Or.",
+    phrases:[
+      {fr:"Je vais vous aider",en:"No problem, I'll help you. Can you tell me if there are any shops or restaurants near you?"},
+      {fr:"Le nom d'un restaurant ?",en:"Can you see the name of a restaurant or a shop nearby?"},
+      {fr:"J'ai trouvé votre position",en:"Perfect — you must be near [lieu]. I found you!"},
+      {fr:"Délai précis",en:"I'll send a taxi to you now. The driver will arrive in about 15 minutes."},
+      {fr:"Point de RDV",en:"Please wait in front of the restaurant entrance."},
+    ],
+    steps:[
+      {n:"1",title:"Réassurance + technique repères",desc:"Rassurer et demander immédiatement les repères visuels.",eg:"No problem, I'll help you. Can you tell me if there are any shops or restaurants near you?"},
+      {n:"2",title:"Affiner la localisation",desc:"Si réponse vague, demander un nom précis.",eg:"Can you see the name of a restaurant or a shop?"},
+      {n:"3",title:"Identification du lieu",desc:"Bocuse = Collonges-au-Mont-d'Or. Confirmer avec assurance.",eg:"Perfect — you must be near Restaurant Paul Bocuse in Collonges-au-Mont-d'Or."},
+      {n:"4",title:"Q2, Q4, bagages, Q5",desc:"Continuer les questions malgré la situation atypique.",eg:"And where would you like to go? / How many people?"},
+      {n:"5",title:"Solution + RDV précis",desc:"Délai précis + point de RDV devant le restaurant.",eg:"The driver will arrive in about 15 minutes. Please wait in front of the restaurant entrance."},
+    ],
+    pitfalls:["Demander l'adresse directement — le client ne la connaît pas, c'est le principe de la simulation.","Hésiter ou sembler incertain en identifiant le lieu — être sûr et rassurant.","Oublier les questions obligatoires (Q2, Q4, Q5) même dans cette situation atypique."],
+    clientCard:"You are: William Harris, American tourist, completely lost in Lyon. Can see 'Bocuse' restaurant sign. Destination: Lyon Part-Dieu station. 2 people, 2 suitcases. Phone: +1 646 555 0198. Only say 'Bocuse' if asked about landmarks.",
+    systemPrompt:`You are William Harris, American tourist completely lost in Lyon. Don't know your address. Respond ONLY in English. You can see restaurants and shops nearby. IMPORTANT: only mention "Bocuse" if asked about visible landmarks or restaurant names. Destination: "Lyon Part-Dieu station". 2 people, 2 suitcases. Phone: "+1 646 555 0198". If adviser successfully locates you and gives precise pickup: become relieved. Keep responses short.`,
+    criteria:[
+      {label:"Réassurance immédiate \"No problem, I'll help\"",comp:"C2",max:3},
+      {label:"Technique de géolocalisation par repères visuels",comp:"C2",max:3},
+      {label:"Identification correcte du lieu (Bocuse = Collonges)",comp:"C2",max:3},
+      {label:"Q2, Q4, option bagages, Q5 posées malgré la situation",comp:"C1",max:3},
+      {label:"Délai précis communiqué (15 min)",comp:"C2",max:3},
+      {label:"Point de RDV précis (entrée du restaurant)",comp:"C2",max:3},
+    ],
+  },
+  {
+    id:10, title:"Booking with delay", sub:"Mise en attente pour trouver un chauffeur", level:"⭐⭐", comps:["C1","C2","C3"],
+    context:"Course immédiate mais délai de recherche chauffeur. Gérer la mise en attente professionnellement avec justification.",
+    maxScore:18, threshold:13,
+    courseCtx:"Un appel immédiat avec une contrainte : 3 grosses valises nécessitent un véhicule spécifique qui prend un peu de temps à trouver. La compétence C3 ici : la mise en attente professionnelle avec une justification claire et rassurante. Si tu es vague ('I don't know when'), le client va s'énerver. Si tu expliques ('best driver + right vehicle for your suitcases'), il accepte.",
+    phrases:[
+      {fr:"Mise en attente professionnelle",en:"Please hold on for just one moment — I want to find the best driver for your 3 large suitcases."},
+      {fr:"Solution précise",en:"I found a driver. He will arrive in approximately 12 minutes with a large vehicle."},
+      {fr:"Merci de votre patience",en:"Thank you for your patience."},
+      {fr:"Point de RDV",en:"Please wait at the main entrance. Have a good flight!"},
+    ],
+    steps:[
+      {n:"1",title:"Q1 à Q5 + bagages",desc:"Collecter toutes les informations avant la mise en attente.",eg:"What is your pick-up address? ... Do you have any luggage?"},
+      {n:"2",title:"Mise en attente avec justification",desc:"Expliquer clairement pourquoi on met en attente.",eg:"Please hold on — with 3 large suitcases, I want to make sure you have the right vehicle."},
+      {n:"3",title:"Solution précise au retour",desc:"Délai exact + confirmation véhicule adapté.",eg:"Ms. Johnson, I found a driver. He will arrive in approximately 12 minutes with a large vehicle for your suitcases."},
+      {n:"4",title:"Point de RDV + clôture",desc:"Entrée principale + clôture adaptée.",eg:"Please wait at the main entrance. Thank you for your patience. Have a good flight!"},
+    ],
+    pitfalls:["Mettre en attente sans expliquer pourquoi — le client pense qu'on l'a oublié.","Revenir avec 'I don't know exactly' — toujours avoir un délai précis.","Oublier de confirmer que le véhicule est adapté aux 3 grosses valises."],
+    clientCard:"You are: Emma Johnson, Australian tourist in a hurry. Taxi NOW: 33 Rue de la République to Lyon Airport. 2 adults, 3 big suitcases. Phone: +61 400 999 777. In a hurry. If adviser puts you on hold with clear justification and comes back with precise answer: accept calmly. If vague: 'How long? I'm going to miss my flight!'",
+    systemPrompt:`You are Emma Johnson, Australian tourist in a hurry. Need immediate taxi from "33 Rue de la République, Lyon" to "Lyon Saint-Exupéry Airport". 2 adults, 3 big suitcases. Phone: "+61 400 999 777". In a hurry but reasonable. If adviser puts you on hold with clear professional justification AND comes back with precise answer (ETA + large vehicle confirmed): accept calmly. If vague or says "I don't know": say "How long exactly? I'm going to miss my flight!" Keep responses short.`,
+    criteria:[
+      {label:"Q1 à Q5 + option bagages toutes posées",comp:"C1",max:3},
+      {label:"Mise en attente professionnelle avec justification claire",comp:"C3",max:3},
+      {label:"Délai précis (12 min) — pas vague",comp:"C2",max:3},
+      {label:"Confirmation véhicule adapté aux 3 grosses valises",comp:"C2",max:3},
+      {label:"Point de RDV précis (entrée principale)",comp:"C2",max:3},
+      {label:"Clôture avec gratitude + \"good flight\"",comp:"C5",max:3},
+    ],
+  },
+];
+
+const QCM_DATA = [
+  {q:"Comment dit-on 'Bonjour, je vous écoute' en anglais professionnel ?",opts:["Hello, I'm listening","Hello, [name] speaking, how can I help?","Good day, what do you want?","Hi, speak please"],c:1,ex:"La formule complète est : 'Hello, [prénom] speaking, how can I help?' — naturelle et accueillante."},
+  {q:"Comment demander l'adresse de départ ?",opts:["Where are you?","Tell me your street","What is your pick-up address?","Where do you come from?"],c:2,ex:"'Pick-up address' = adresse de prise en charge. C'est le terme professionnel."},
+  {q:"Comment demander poliment de patienter ?",opts:["Wait please","One moment please","Could you please hold on a moment?","Don't go"],c:2,ex:"'Could you please hold on a moment?' est la formule professionnelle de mise en attente."},
+  {q:"Un client dit 'Just me.' Combien de personnes ?",opts:["0","1","2","Inconnu"],c:1,ex:"'Just me' = juste moi = 1 personne."},
+  {q:"Comment dire 'Avez-vous des bagages ?' en anglais ?",opts:["Have you luggage?","Do you have any luggage?","Any bags?","Luggage?"],c:1,ex:"'Do you have any luggage?' est la formulation correcte et polie."},
+  {q:"Un client anglophone est impatient. Que faire en PREMIER ?",opts:["S'excuser longuement","Raccrocher","Rester calme et rassurer immédiatement","Transférer l'appel"],c:2,ex:"Toujours rester calme et rassurer avant de se justifier. Règle C3."},
+  {q:"Comment annoncer le délai d'arrivée du chauffeur ?",opts:["He comes soon","The driver will be there in X minutes","Your taxi is coming","In a moment"],c:1,ex:"Toujours donner un délai précis : 'The driver will be there in X minutes'."},
+  {q:"Pour un départ aéroport, quelle question supplémentaire poser ?",opts:["Avez-vous un visa ?","Votre heure de vol ?","Votre carte d'embarquement ?","Quelle compagnie ?"],c:1,ex:"Demander l'heure de vol permet de vérifier que l'horaire de prise en charge est cohérent."},
+  {q:"Un client dit 'I've just landed, I can't see my taxi.' Que dire en premier ?",opts:["Please wait","Can I have your name?","No problem — let me check for you","I'll call the driver"],c:2,ex:"'No problem' = réassurance immédiate. Puis identification. L'ordre est important !"},
+  {q:"Comment confirmer une réservation en anglais ?",opts:["OK, done","Your booking is confirmed","I note your reservation","It's registered"],c:1,ex:"'Your booking is confirmed' est la formule standard professionnelle."},
+  {q:"Que signifie 'pick-up address' ?",opts:["Adresse de destination","Adresse de prise en charge","Adresse de livraison","Adresse postale"],c:1,ex:"'Pick-up' = ramassage, prise en charge. C'est l'adresse de départ du client."},
+  {q:"Un client dit 'Two adults and one child, 5 years old.' Que vérifier ensuite ?",opts:["L'âge exact","Le siège enfant et les bagages","Le mode de paiement","Rien"],c:1,ex:"Enfant → question siège enfant + info légale (C2) + vérification bagages."},
+  {q:"Comment dire 'Je n'ai pas compris' en anglais professionnel ?",opts:["What?","I don't understand","I'm sorry, could you repeat that please?","Speak again"],c:2,ex:"'Could you repeat that please?' est poli et professionnel. Jamais 'What?'"},
+  {q:"À la clôture d'un appel pour un vol, quelle formule ?",opts:["Goodbye","See you","Have a good flight!","Good luck"],c:2,ex:"'Have a good flight!' est la clôture personnalisée pour un contexte aéroport — C5."},
+  {q:"Comment demander poliment le nom et le téléphone ?",opts:["Name and phone?","May I have your name and phone number?","Give me your details","What's your name?"],c:1,ex:"'May I have' est la formule polie professionnelle."},
+  {q:"Seuil de validation pour la majorité des simulations ?",opts:["50% soit 12/24","60% soit 14/24","70% soit 17/24","80% soit 19/24"],c:2,ex:"Le seuil est fixé à 70% minimum pour chaque simulation."},
+  {q:"Un client est perdu et ne connaît pas son adresse. Que demander ?",opts:["'What is your address?'","'Where are you?' et raccrocher","'Can you see any shops or restaurant names nearby?'","Lui dire de rappeler plus tard"],c:2,ex:"Technique de géolocalisation par repères visuels — compétence C2 avancée."},
+  {q:"Comment mettre un client en attente professionnellement ?",opts:["'Hold on'","'Please hold on for one moment while I [action précise]'","'Don't hang up'","'Wait a moment'"],c:1,ex:"Toujours expliquer pourquoi on met en attente — le client doit savoir ce qu'on fait."},
+  {q:"Comment dire 'Plus lentement SVP' en anglais ?",opts:["Speak slowly","More slow please","Could you speak more slowly, please?","Go slower"],c:2,ex:"'Could you speak more slowly, please?' — à utiliser sans hésiter si besoin."},
+  {q:"Quel est le module M7 du TAXITL CFA ?",opts:["Téléprospection","Anglais Relation Client","Gestion des conflits","Communication digitale"],c:1,ex:"Le Module M7 est entièrement dédié à l'Anglais Relation Client opérationnel."},
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let student = {prenom:'', nom:'', date:'', voiceConsent:false};
+let simResults = {};
+let currentSimId = null;
+let chatHistory = [];
+let isLoading = false;
+let voiceMode = true;
+let recognition = null;
+let isRecording = false;
+let voiceTranscript = '';
+let qcmQuestions = [];
+let qcmIdx = 0;
+let qcmScore = 0;
+let currentScoreSimId = null;
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function toggle(id){
+  const el = document.getElementById(id);
+  el.checked = !el.checked;
+}
+function fmtDate(d){
+  if(!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════
+function doLogin(){
+  const prenom = document.getElementById('inp-prenom').value.trim();
+  const nom = document.getElementById('inp-nom').value.trim();
+  const date = document.getElementById('inp-date').value;
+  const code = document.getElementById('inp-code').value.trim();
+  const rgpd1 = document.getElementById('rgpd1').checked;
+  const err = document.getElementById('login-error');
+
+  if(!prenom || !nom){ showErr('Merci de saisir ton prénom et ton nom.'); return; }
+  if(!date){ showErr('Merci de saisir la date de la session.'); return; }
+  if(code !== ACCESS_CODE){ showErr('Code d\'accès incorrect. Contacte ton formateur.'); return; }
+  if(!rgpd1){ showErr('Tu dois accepter la politique de confidentialité pour accéder à la formation.'); return; }
+
+  err.classList.remove('show');
+  student = { prenom, nom, date, voiceConsent: document.getElementById('rgpd2').checked };
+
+  document.getElementById('hdr-name').textContent = `${prenom} ${nom}`;
+  document.getElementById('greet-name').textContent = `Bonjour ${prenom} ! 👋`;
+  document.getElementById('greet-date').textContent = `Session du ${fmtDate(date)}`;
+
+  buildSimList();
+  buildVocab();
+  updateMenuProgress();
+  showScreen('menu');
+}
+function showErr(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function logout(){
+  showScreen('login');
+}
+
+// ═══════════════════════════════════════════════════════
+// MENU / MODULE
+// ═══════════════════════════════════════════════════════
+function switchModule(mod){
+  document.querySelectorAll('.module-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.module-content').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  const el = document.getElementById(`mod-${mod}`);
+  if(el) el.classList.add('active');
+}
+function updateMenuProgress(){
+  const done = Object.values(simResults).filter(r=>r.validated).length;
+  const pct = Math.round((done/10)*100);
+  document.getElementById('sim-prog-bar').style.width = pct+'%';
+  document.getElementById('sim-prog-lbl').textContent = `${done}/10 validées`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SIM LIST
+// ═══════════════════════════════════════════════════════
+function goSimSelect(){ buildSimList(); showScreen('sim-select'); }
+function buildSimList(){
+  const list = document.getElementById('sim-list');
+  list.innerHTML = SIMS.map(s=>{
+    const r = simResults[s.id];
+    const done = r ? `<span class="sim-done">${r.score}/${s.maxScore} ${r.validated?'✅':'↺'}</span>` : '';
+    return `<div class="sim-item" onclick="goToCourse(${s.id})">
+      <div class="sim-num">S${s.id}</div>
+      <div class="sim-info"><h4>${s.title}</h4><p>${s.sub}</p></div>
+      <div class="sim-lvl">${s.level}</div>${done}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// COURSE
+// ═══════════════════════════════════════════════════════
+function goToCourse(id){ loadCourse(id); showScreen('course'); }
+function loadCourse(id){
+  currentSimId = id;
+  const s = SIMS.find(x=>x.id===id);
+  document.getElementById('course-badge').textContent = `Cours S${id}`;
+  document.getElementById('course-num').textContent = `Simulation ${id} sur 10`;
+  document.getElementById('course-title').textContent = s.title + ' — ' + s.sub;
+  const meta = document.getElementById('course-meta');
+  meta.innerHTML = `<span class="course-badge cb-level">${s.level} ${['Débutant','Intermédiaire','Avancé'][s.level.length-1]||'Avancé'}</span>
+    <span class="course-badge cb-time">⏱ ${[10,15,15,12,10,12,12,15,15,12][id-1]} min</span>
+    ${s.comps.map(c=>`<span class="course-badge cb-${c}">${c}</span>`).join('')}`;
+  document.getElementById('course-ctx').textContent = s.courseCtx;
+  document.getElementById('course-phrases').innerHTML = s.phrases.map(p=>`
+    <div class="phrase-row">
+      <div class="phrase-fr">${p.fr}</div>
+      <div><div class="phrase-en">${p.en}</div></div>
+    </div>`).join('');
+  document.getElementById('course-steps').innerHTML = s.steps.map(st=>`
+    <div class="step-item">
+      <div class="step-num">${st.n}</div>
+      <div class="step-content">
+        <h4>${st.title}</h4>
+        <p>${st.desc}</p>
+        ${st.eg?`<em>"${st.eg}"</em>`:''}
+      </div>
+    </div>`).join('');
+  document.getElementById('course-pitfalls').innerHTML = s.pitfalls.map(p=>`
+    <div class="pitfall"><span>⚠️</span><span>${p}</span></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════════════════
+function launchSim(id){
+  currentSimId = id;
+  const s = SIMS.find(x=>x.id===id);
+  chatHistory = [];
+  document.getElementById('sim-title').textContent = `S${id} — ${s.title}`;
+  document.getElementById('sim-ctx-txt').textContent = s.context;
+  document.getElementById('sim-comps').innerHTML = [...new Set(s.criteria.map(c=>c.comp))].map(c=>`<span class="course-badge cb-${c}">${c}</span>`).join('');
+  document.getElementById('chat-wrap').innerHTML = '';
+  document.getElementById('chat-ta').value = '';
+
+  // Init voice mode based on consent
+  if(!student.voiceConsent){ setMode('text'); }
+  else { setMode('voice'); }
+
+  addSysMsg(`Simulation ${id} lancée. Tu joues le rôle du conseiller TAXITL. Réponds en anglais ! 🎧`);
+  showScreen('simulation');
+  setTimeout(()=>callClient("Start the call. Open as your character would naturally."), 600);
+}
+
+function setMode(m){
+  voiceMode = m === 'voice';
+  document.getElementById('voice-mode').style.display = voiceMode ? 'block' : 'none';
+  document.getElementById('text-mode').style.display = voiceMode ? 'none' : 'block';
+  document.getElementById('mode-voice-btn').classList.toggle('active', voiceMode);
+  document.getElementById('mode-text-btn').classList.toggle('active', !voiceMode);
+  if(!student.voiceConsent && voiceMode){
+    addSysMsg("⚠️ Tu n'as pas accepté la reconnaissance vocale lors de la connexion. Mode texte activé.");
+    setMode('text');
+  }
+}
+
+function addSysMsg(txt){
+  const wrap = document.getElementById('chat-wrap');
+  const d = document.createElement('div');
+  d.className='msg sys';
+  d.innerHTML=`<div class="av">ℹ️</div><div><div class="bubble">${txt}</div></div>`;
+  wrap.appendChild(d);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+function addClientMsg(txt){
+  const wrap = document.getElementById('chat-wrap');
+  const d = document.createElement('div');
+  d.className='msg client';
+  d.innerHTML=`<div class="av">🌍</div><div><div class="msg-lbl">Client</div><div class="bubble">${txt}</div></div>`;
+  wrap.appendChild(d);
+  wrap.scrollTop=wrap.scrollHeight;
+  if(student.voiceConsent) speakText(txt);
+}
+function addUserMsg(txt){
+  const wrap = document.getElementById('chat-wrap');
+  const d = document.createElement('div');
+  d.className='msg user';
+  d.innerHTML=`<div><div class="msg-lbl">${student.prenom} (Conseiller)</div><div class="bubble">${txt}</div></div><div class="av">🎧</div>`;
+  wrap.appendChild(d);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+function addTyping(){
+  const wrap = document.getElementById('chat-wrap');
+  const d = document.createElement('div');
+  d.className='msg client'; d.id='typing-ind';
+  d.innerHTML=`<div class="av">🌍</div><div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  wrap.appendChild(d);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+function removeTyping(){ const e=document.getElementById('typing-ind'); if(e) e.remove(); }
+
+function handleEnter(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendText(); } }
+
+async function sendText(){
+  const ta = document.getElementById('chat-ta');
+  const txt = ta.value.trim();
+  if(!txt || isLoading) return;
+  ta.value='';
+  addUserMsg(txt);
+  chatHistory.push({role:'user',content:txt});
+  await callClient(txt);
+}
+
+async function callClient(userMsg){
+  if(isLoading) return;
+  isLoading=true;
+  document.getElementById('send-btn').disabled=true;
+  addTyping();
+  const s = SIMS.find(x=>x.id===currentSimId);
+  const msgs = chatHistory.length>0 ? chatHistory.map(m=>({role:m.role,content:m.content})) : [{role:'user',content:userMsg}];
+  if(chatHistory.length===0) chatHistory.push({role:'user',content:userMsg});
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:s.systemPrompt,messages:msgs})
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '...';
+    chatHistory.push({role:'assistant',content:reply});
+    removeTyping();
+    addClientMsg(reply);
+  }catch(e){ removeTyping(); addSysMsg("Erreur de connexion. Vérifie ta connexion internet."); }
+  isLoading=false;
+  document.getElementById('send-btn').disabled=false;
+}
+
+function showHint(){
+  const hints=["💡 Questions obligatoires : adresse départ, destination, personnes, bagages, nom, téléphone.","💡 Accueil : 'Hello, [prénom] speaking, how can I help?'","💡 Toujours donner un délai précis, jamais vague.","💡 Reformule avant de confirmer : 'Is that correct?'"];
+  addSysMsg(hints[Math.floor(Math.random()*hints.length)]);
+}
+
+// ─── VOICE ───
+function speakText(txt){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(txt);
+  utt.lang='en-GB'; utt.rate=0.9; utt.pitch=1;
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v=>v.lang.startsWith('en')) || null;
+  if(enVoice) utt.voice = enVoice;
+  window.speechSynthesis.speak(utt);
+}
+
+function toggleVoice(){
+  if(isRecording){ stopRecording(); } else { startRecording(); }
+}
+function startRecording(){
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    addSysMsg("⚠️ Reconnaissance vocale non disponible. Utilise Chrome et passe en mode texte.");
+    setMode('text'); return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang='en-US'; recognition.continuous=false; recognition.interimResults=true;
+  recognition.onresult = e=>{
+    let interim='', final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    document.getElementById('voice-transcript').textContent = final||interim;
+    voiceTranscript = final||interim;
+  };
+  recognition.onend = ()=>{ isRecording=false; updateVoiceBtn(); if(voiceTranscript) showVoiceConfirm(); };
+  recognition.onerror = ()=>{ isRecording=false; updateVoiceBtn(); addSysMsg("Erreur micro. Réessaie ou utilise le mode texte."); };
+  recognition.start();
+  isRecording=true;
+  voiceTranscript='';
+  document.getElementById('voice-transcript').textContent='';
+  document.getElementById('voice-transcript-area').style.display='none';
+  updateVoiceBtn();
+}
+function stopRecording(){ if(recognition){ recognition.stop(); } isRecording=false; updateVoiceBtn(); }
+function updateVoiceBtn(){
+  const btn=document.getElementById('voice-btn');
+  const lbl=document.getElementById('voice-btn-lbl');
+  const sts=document.getElementById('voice-status');
+  if(isRecording){ btn.classList.add('recording'); lbl.textContent='Enregistrement... (cliquer pour arrêter)'; sts.textContent='🔴 En cours...'; }
+  else { btn.classList.remove('recording'); lbl.textContent='Appuyer pour parler'; sts.textContent='Prêt — Parle en anglais'; }
+}
+function showVoiceConfirm(){
+  document.getElementById('voice-transcript-area').style.display='block';
+}
+function sendVoice(){
+  const txt = document.getElementById('voice-transcript').textContent.trim();
+  if(!txt) return;
+  document.getElementById('voice-transcript-area').style.display='none';
+  voiceTranscript='';
+  addUserMsg(txt);
+  chatHistory.push({role:'user',content:txt});
+  callClient(txt);
+}
+function cancelVoice(){
+  document.getElementById('voice-transcript-area').style.display='none';
+  voiceTranscript='';
+  document.getElementById('voice-transcript').textContent='';
+}
+
+// ─── END SIM & EVAL ───
+async function endSim(){
+  if(!currentSimId){ showScreen('sim-select'); return; }
+  const s = SIMS.find(x=>x.id===currentSimId);
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  addSysMsg("Évaluation de ta simulation en cours... ⏳");
+  document.getElementById('send-btn').disabled=true;
+
+  const conv = chatHistory.filter(m=>m.role!=='system').map(m=>`${m.role==='user'?student.prenom+' (Conseiller)':'Client'}: ${m.content}`).join('\n');
+  const critTxt = s.criteria.map((c,i)=>`${i+1}. ${c.label} (${c.comp}) — max ${c.max} pts`).join('\n');
+
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:`You are a professional trainer evaluating a call centre trainee. Evaluate the conversation and respond ONLY with valid JSON (no preamble, no markdown):
+{"scores":[score1,score2,...],"total":totalScore,"feedback":"bref feedback en français, 2-3 phrases, encourageant mais honnête"}
+Each score: 0, 1, 2, or 3. Criteria:\n${critTxt}`,
+        messages:[{role:'user',content:`Conversation:\n\n${conv}`}]
+      })
+    });
+    const data = await res.json();
+    let ev;
+    try{ ev=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); }
+    catch(e){ ev={scores:s.criteria.map(()=>1),total:Math.floor(s.maxScore*.6),feedback:"Évaluation automatique appliquée."}; }
+    const total = ev.total||ev.scores?.reduce((a,b)=>a+b,0)||0;
+    const validated = total>=s.threshold;
+    simResults[currentSimId]={score:total,validated,scores:ev.scores};
+    updateMenuProgress();
+    buildSimList();
+    currentScoreSimId=currentSimId;
+    showScoreScreen(total,ev.scores,ev.feedback,validated,s);
+  }catch(e){ showScreen('sim-select'); }
+}
+
+function showScoreScreen(total,scores,feedback,validated,s){
+  document.getElementById('sc-emoji').textContent = validated?'🏆':'💪';
+  document.getElementById('sc-lbl').textContent = `S${s.id} — ${s.title}`;
+  document.getElementById('sc-num').textContent = total;
+  document.getElementById('sc-denom').textContent = `/${s.maxScore}`;
+  const st=document.getElementById('sc-status');
+  st.textContent = validated?`✅ Validée — seuil ${s.threshold}/${s.maxScore} atteint`:`❌ À refaire — seuil ${s.threshold}/${s.maxScore} non atteint`;
+  st.className=`score-status ${validated?'ss-ok':'ss-ko'}`;
+  document.getElementById('sc-fb').textContent = feedback||'';
+  document.getElementById('sc-breakdown').innerHTML=(scores||[]).map((sc,i)=>{
+    const c=s.criteria[i]; if(!c) return '';
+    const cls=sc>=c.max?'sc-full':sc>0?'sc-half':'sc-zero';
+    return `<div class="sc-row"><span class="course-badge cb-${c.comp}">${c.comp}</span><span style="flex:1;font-size:12px">${c.label}</span><span class="sc-pts ${cls}">${sc}/${c.max}</span></div>`;
+  }).join('');
+  showScreen('score-screen');
+}
+function replaySim(){ if(currentScoreSimId) launchSim(currentScoreSimId); }
+
+// ═══════════════════════════════════════════════════════
+// QCM
+// ═══════════════════════════════════════════════════════
+function goQCM(){ startQCM(); showScreen('qcm'); }
+function startQCM(){
+  qcmQuestions=[...QCM_DATA].sort(()=>Math.random()-.5).slice(0,20);
+  qcmIdx=0; qcmScore=0; showQ();
+}
+function showQ(){
+  const q=qcmQuestions[qcmIdx];
+  document.getElementById('qprog-fill').style.width=`${(qcmIdx/qcmQuestions.length)*100}%`;
+  document.getElementById('qcounter').textContent=`Question ${qcmIdx+1}/${qcmQuestions.length}`;
+  document.getElementById('qqestion').textContent=q.q;
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>`<button class="qopt" onclick="answerQ(${i})">${o}</button>`).join('');
+}
+function answerQ(idx){
+  const q=qcmQuestions[qcmIdx];
+  document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  const ok=idx===q.c;
+  if(ok) qcmScore++;
+  document.querySelectorAll('.qopt')[q.c].classList.add('correct');
+  if(!ok) document.querySelectorAll('.qopt')[idx].classList.add('wrong');
+  const fb=document.getElementById('qfb');
+  fb.textContent=(ok?'✅ Correct ! ':'❌ Incorrect. ')+q.ex;
+  fb.className=`qfb show ${ok?'correct':'wrong'}`;
+  const nxt=document.getElementById('qnext');
+  nxt.style.display='block';
+  nxt.textContent=qcmIdx+1>=qcmQuestions.length?`Voir mon score (${qcmScore}/${qcmQuestions.length})`:'Question suivante →';
+}
+function nextQ(){
+  qcmIdx++;
+  if(qcmIdx>=qcmQuestions.length) showQCMResult();
+  else showQ();
+}
+function showQCMResult(){
+  const pct=Math.round((qcmScore/qcmQuestions.length)*100);
+  const ok=pct>=70;
+  document.getElementById('sc-emoji').textContent=ok?'🎓':'📚';
+  document.getElementById('sc-lbl').textContent='Quiz Vocabulaire M7';
+  document.getElementById('sc-num').textContent=qcmScore;
+  document.getElementById('sc-denom').textContent=`/${qcmQuestions.length}`;
+  const st=document.getElementById('sc-status');
+  st.textContent=ok?`✅ ${pct}% — Bien joué !`:`↺ ${pct}% — Révise le lexique !`;
+  st.className=`score-status ${ok?'ss-ok':'ss-ko'}`;
+  document.getElementById('sc-fb').textContent=ok?'Tu maîtrises bien le vocabulaire de base. Continue les simulations !':'Consulte le lexique de référence pour renforcer tes connaissances.';
+  document.getElementById('sc-breakdown').innerHTML='';
+  currentScoreSimId=null;
+  showScreen('score-screen');
+}
+
+// ═══════════════════════════════════════════════════════
+// VOCAB
+// ═══════════════════════════════════════════════════════
+function buildVocab(){
+  document.getElementById('vocab-grid').innerHTML=VOCAB_DATA.map(v=>`
+    <div class="vcard"><div class="vfr">${v.fr}</div><div class="ven">${v.en}</div><div class="vpr">🔊 ${v.pr}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════════════
+function showProgress(){
+  const done=Object.values(simResults).filter(r=>r.validated).length;
+  document.getElementById('sc-emoji').textContent=done>=8?'🎓':'📊';
+  document.getElementById('sc-lbl').textContent=`${student.prenom} ${student.nom} — Progression M7`;
+  document.getElementById('sc-num').textContent=done;
+  document.getElementById('sc-denom').textContent='/10 validées';
+  const st=document.getElementById('sc-status');
+  st.textContent=done>=8?'✅ Module M7 Validé !':` ${10-done} simulation(s) restante(s)`;
+  st.className=`score-status ${done>=8?'ss-ok':'ss-ko'}`;
+  document.getElementById('sc-fb').textContent=Object.keys(simResults).length===0?'Aucune simulation réalisée pour l\'instant.':
+    Object.entries(simResults).map(([id,r])=>{const s=SIMS.find(x=>x.id==id); return `S${id} ${s?.title}: ${r.score}/${s?.maxScore} ${r.validated?'✅':'↺'}`;}).join(' • ');
+  document.getElementById('sc-breakdown').innerHTML='';
+  currentScoreSimId=null;
+  showScreen('score-screen');
+}
+
+// Init voices for speech synthesis
+if(window.speechSynthesis) window.speechSynthesis.getVoices();
+buildVocab();
+// Set today's date
+document.getElementById('inp-date').valueAsDate = new Date();
+</script>
+</body>
+</html>
