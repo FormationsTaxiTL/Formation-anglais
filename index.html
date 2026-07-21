@@ -615,74 +615,63 @@ const VOCAB_DATA = [
 
 const SIMS = [
   {
-    id:1, title:"Immediate ride", sub:"Course immédiate", level:"⭐", comps:["C1"],
+    id:1, title:"Immediate ride", sub:"Course immédiate", level:"⭐", comps:["C1","C2"],
     context:"Un client anglophone appelle pour une course immédiate. Tu joues le rôle du conseiller TAXITL. Tu dois collecter toutes les informations nécessaires et confirmer professionnellement.",
-    maxScore:24, threshold:17,
-    courseCtx:"Un client anglophone appelle pour un taxi immédiat. Il est pressé mais poli. Ton rôle : accueillir, qualifier l'appel en posant les 5 questions obligatoires, donner un délai précis et un point de rendez-vous clair.",
+    maxScore:18, threshold:13,
+    courseCtx:"Simulation de base : un client britannique appelle pour un taxi immédiat. Il faut collecter les 5 informations obligatoires (départ, destination, personnes, bagages, nom+téléphone) et confirmer la course avec un délai précis. Pas d'aéroport ni de gare — pas de pancarte, pas d'heure de vol.",
     phrases:[
-      {fr:"Bonjour, je vous écoute",en:"Hello, [prénom] speaking, how can I help?"},
-      {fr:"Adresse de départ ?",en:"What is your pick-up address?"},
-      {fr:"Destination ?",en:"Where would you like to go?"},
-      {fr:"Combien de personnes ?",en:"How many people / passengers?"},
-      {fr:"Des bagages ?",en:"Do you have any luggage?"},
-      {fr:"Votre nom et téléphone ?",en:"May I have your name and phone number?"},
-      {fr:"Délai précis",en:"The driver will be there in X minutes"},
-      {fr:"Point de RDV",en:"Please wait in front of [lieu précis]"},
+      {fr:"Bonjour, [Prénom], je vous écoute",en:"Hello, [name] speaking, how can I help?",pr:"hélô... spîkiNG haou kan aï hélp"},
+      {fr:"Adresse de départ ?",en:"What is your pick-up address?",pr:"wot iz yor pik-ôp adress"},
+      {fr:"Destination ?",en:"Where would you like to go?",pr:"wèr woud you laïk tou gô"},
+      {fr:"Combien de personnes ?",en:"How many passengers?",pr:"haou méni pasèndjerz"},
+      {fr:"Avez-vous des bagages ?",en:"Do you have any luggage?",pr:"dou you hav éni lôguidj"},
+      {fr:"Votre nom et téléphone ?",en:"May I have your name and phone number?",pr:"méi aï hav yor néim and fôn nômbr"},
+      {fr:"Le chauffeur arrive dans X min",en:"The driver will be there in X minutes",pr:"de draïver wil bi dèr in X minits"},
     ],
     steps:[
-      {n:"1",title:"Accueil",desc:"Formule complète en anglais.",eg:"Hello, [prénom] speaking, how can I help?"},
-      {n:"2",title:"Q1 — Adresse de départ",desc:"Demander l'adresse de prise en charge.",eg:"What is your pick-up address?"},
-      {n:"3",title:"Q2 — Destination",desc:"Demander où le client souhaite aller.",eg:"Where would you like to go?"},
-      {n:"4",title:"Q4 — Personnes & bagages",desc:"Nombre de passagers, puis bagages proactivement.",eg:"How many passengers? / Do you have any luggage?"},
-      {n:"5",title:"Q5 — Nom & téléphone",desc:"Nom complet et numéro avec indicatif pays.",eg:"May I have your name and phone number?"},
-      {n:"6",title:"Confirmation & clôture",desc:"Délai précis + point de RDV + formule de clôture.",eg:"The driver will be there in 7 minutes. Have a good ride!"},
+      {n:"1",title:"Accueil professionnel",desc:"Formule complète obligatoire.",eg:"Hello, [prénom] speaking, how can I help?"},
+      {n:"2",title:"5 questions obligatoires",desc:"Départ → Destination → Personnes → Bagages → Nom+Téléphone. Dans cet ordre.",eg:"What is your pick-up address?"},
+      {n:"3",title:"Confirmation avec délai précis",desc:"Jamais vague. Délai exact + confirmation.",eg:"Your booking is confirmed. The driver will be there in 8 minutes."},
     ],
-    pitfalls:["Ne pas donner de délai vague (\"soon\", \"in a moment\") — toujours un chiffre précis.","Ne pas oublier la question bagages — le client ne le dira pas toujours spontanément.","Ne pas commencer par justifier avant d'avoir identifié le client."],
-    clientCard:"You are: James Miller, British tourist in Lyon. You need a taxi RIGHT NOW from 12 King Street, Lyon to Gare Part-Dieu. 1 person, 1 suitcase. Phone: +44 7700 900123. Friendly, slightly in a hurry.",
-    systemPrompt:`You are James Miller, a British tourist in Lyon who needs an immediate taxi. Respond ONLY in English. Be realistic: don't give all information at once, wait to be asked. Pick-up: "12 King Street, Lyon". Destination: "Gare Part-Dieu". 1 person, 1 suitcase. Phone: "+44 7700 900123". Friendly but slightly in a hurry. Keep responses to 1-2 sentences.`,
+    pitfalls:["Oublier une des 5 questions obligatoires.","Donner un délai vague : 'soon', 'shortly' sans chiffre précis.","Ne pas répéter le nom du client pour personnaliser."],
+    clientCard:"You are: James Miller, British tourist in Lyon. Need immediate taxi. Pick-up: 12 King Street, Lyon. To: Gare Part-Dieu. 1 person, 1 suitcase. Phone: +44 7911 000111.",
+    systemPrompt:`You are James Miller, a British tourist in Lyon who needs an immediate taxi. Respond ONLY in English. Be realistic — do not give all information at once, wait to be asked. Pick-up: "12 King Street, Lyon". Destination: "Gare Part-Dieu". 1 person, 1 suitcase. Phone: "+44 7911 000111". Calm and cooperative. If asked about flight or train: this is just a city ride, no flight or train involved. 1-2 sentences max per reply.`,
     criteria:[
-      {label:"Formule d'accueil complète en anglais",comp:"C1",max:3},
-      {label:"Q1 — Adresse de départ demandée",comp:"C1",max:3},
-      {label:"Q2 — Destination",comp:"C1",max:3},
-      {label:"Q4 — Nombre de personnes",comp:"C1",max:3},
-      {label:"Question bagages posée proactivement",comp:"C1",max:3},
-      {label:"Q5 — Nom + téléphone avec indicatif",comp:"C1",max:3},
-      {label:"Délai précis communiqué",comp:"C1",max:3},
-      {label:"Point de RDV précis",comp:"C1",max:3},
+      {label:"Formule d'accueil complète",comp:"C1",max:3},
+      {label:"5 infos collectées : départ, dest, pers, bag, nom+tel",comp:"C1",max:6},
+      {label:"Délai précis communiqué (X minutes, pas 'soon')",comp:"C1",max:3},
+      {label:"Confirmation professionnelle de la réservation",comp:"C1",max:3},
+      {label:"Ton calme et professionnel",comp:"C5",max:3},
     ],
   },
   {
-    id:2, title:"Reservation for tomorrow", sub:"Réservation à l'avance", level:"⭐⭐", comps:["C1","C2","C5"],
-    context:"Famille américaine avec enfant réserve un taxi pour l'aéroport. Points clés : siège enfant, bagages importants, reformulation complète.",
-    maxScore:24, threshold:17,
-    courseCtx:"Une famille américaine appelle pour réserver un taxi pour demain matin direction l'aéroport. Ils voyagent avec un enfant de 5 ans et 3 grandes valises. Points critiques : demander le siège enfant proactivement et donner l'information légale (non obligatoire en taxi France), vérifier que le véhicule peut accueillir 3 grosses valises, et reformuler TOUT avant de confirmer.",
+    id:2, title:"Airport departure", sub:"Départ aéroport — famille avec enfant", level:"⭐⭐", comps:["C1","C2","C5"],
+    context:"Famille américaine avec enfant réserve un taxi pour l'aéroport. Départ = pas de pancarte. Demander l'heure de VOL (départ). Siège enfant obligatoire à vérifier.",
+    maxScore:18, threshold:13,
+    courseCtx:"Réservation départ aéroport avec enfant. Règle clé : le client PART à l'aéroport — pas de pancarte. Demander l'heure du vol (départ, pas arrivée). Siège enfant : obligation légale en France à communiquer proactivement. Vérifier que le véhicule peut accueillir 3 bagages + enfant.",
     phrases:[
-      {fr:"Pour quelle date et heure exactement ?",en:"For which date and time exactly?"},
-      {fr:"Siège enfant ?",en:"Would you like a child seat? It's not mandatory in French taxis, but we can arrange it."},
-      {fr:"Des bagages ?",en:"Do you have any luggage?"},
-      {fr:"Je confirme... est-ce correct ?",en:"I confirm your booking: [résumé complet]. Is that correct?"},
-      {fr:"Panneau à votre nom",en:"The driver will wait with a sign with your name."},
-      {fr:"Bon vol",en:"Have a good flight!"},
+      {fr:"Pour quelle heure exactement ?",en:"For what time exactly?",pr:"for wot taïm egzaktli"},
+      {fr:"Votre heure de vol (départ) ?",en:"What time does your flight depart?",pr:"wot taïm daz yor flaït dipârt"},
+      {fr:"Siège enfant nécessaire ?",en:"Do you need a child seat? It is mandatory in France for children under 10.",pr:"dou you nid a tchaïld sit"},
+      {fr:"Je vérifie le véhicule adapté",en:"Let me check we have a vehicle with enough space for your luggage.",pr:"let mi tchek wi hav a vikl"},
+      {fr:"Bon voyage !",en:"Have a good flight!",pr:"hav a good flaït"},
     ],
     steps:[
-      {n:"1",title:"Accueil & Q1 à Q5",desc:"Poser toutes les questions : adresse, destination, date/heure, nombre personnes, bagages, nom, téléphone.",eg:"Certainly. What is your departure address?"},
-      {n:"2",title:"Siège enfant — proactif",desc:"Si enfant mentionné, proposer le siège immédiatement avec l'info légale.",eg:"Would you like a child seat? Please note it's not mandatory in taxis in France, but we can arrange it."},
-      {n:"3",title:"Vérification véhicule",desc:"3 grandes valises = vérifier mentalement qu'un véhicule adapté est disponible.",eg:"Thank you, I note 3 large bags."},
-      {n:"4",title:"Reformulation complète",desc:"Tout récapituler avant de confirmer — sans rien oublier.",eg:"I confirm: Thursday 21st at 7:00 AM from 85 Rue de la République to the airport, 2 adults + 1 child with child seat, 3 large bags. Is that correct?"},
-      {n:"5",title:"Clôture fidélisante",desc:"Clôture adaptée au contexte aéroport.",eg:"Have a good flight!"},
+      {n:"1",title:"Collecte standard + heure de vol départ",desc:"Demander l'heure à laquelle le vol DÉCOLLE (pas atterrit).",eg:"What time does your flight depart?"},
+      {n:"2",title:"Siège enfant — proactif",desc:"Enfant mentionné → siège enfant + info légale immédiatement.",eg:"Do you need a child seat? It is mandatory in France for children under 10."},
+      {n:"3",title:"Vérification cohérence horaire",desc:"Vol à 9h30 + taxi à 7h = vérifier que c'est suffisant.",eg:"Your flight is at 9:30 AM and you need the taxi at 7:00 AM — that should give you enough time."},
+      {n:"4",title:"Clôture personnalisée",desc:"'Have a good flight!' — pas 'Have a good trip!'",eg:"Have a good flight, Mrs Johnson!"},
     ],
-    pitfalls:["Oublier de demander le siège enfant si un enfant est mentionné — critique C2.","Ne pas donner l'info légale sur le siège enfant en France.","Reformulation incomplète — tout doit être récapitulé.","Oublier de mentionner le panneau au nom à l'aéroport."],
-    clientCard:"You are: Sarah Johnson, American tourist with husband and 5yo child. Book for Thursday Aug 21 at 7 AM from 85 Rue de la République to Lyon Airport. 3 large bags. Phone: +1 646 555 0245. Ask about child seat if not offered.",
-    systemPrompt:`You are Sarah Johnson, American tourist booking a taxi for tomorrow morning. Respond ONLY in English. Departure: "85 Rue de la République, Lyon". Destination: "Lyon Saint-Exupéry Airport". Thursday August 21 at 7:00 AM. 2 adults + 1 child (5 years). 3 large bags. Phone: "+1 646 555 0245". If child seat not mentioned before end: ask "Do you provide child seats?" Keep responses short.`,
+    pitfalls:["Proposer une pancarte — le client PART, il n'arrive pas.","Demander l'heure d'ARRIVÉE au lieu du DÉPART du vol.","Oublier de mentionner l'obligation siège enfant en France.","Dire 'Have a good trip' au lieu de 'Have a good flight!'"],
+    clientCard:"You are: Sarah Johnson, American tourist. Taxi to airport tomorrow. Departure: 85 Rue de la République. Thursday Aug 21, 7 AM. 2 adults + child 5 years. 3 bags. Flight departs 9:30 AM. No sign expected (departing).",
+    systemPrompt:`You are Sarah Johnson, American tourist booking a taxi to Lyon Saint-Exupéry Airport tomorrow morning. Respond ONLY in English. Departure from: "85 Rue de la République, Lyon". Thursday August 21 at 7:00 AM. 2 adults and 1 child (5 years old, needs child seat). 3 large bags. Phone: "+1 555 234 5678". Flight DEPARTS at 9:30 AM — only say this if adviser asks what time your flight departs or leaves, never if they ask arrival time. Do NOT mention or expect any sign with your name — you are departing not arriving. If asked about child seat: "Yes please, my child is 5". Wait to be asked each detail. 1-2 sentences max.`,
     criteria:[
-      {label:"Formule d'accueil complète",comp:"C1",max:3},
-      {label:"Q1 à Q5 posées toutes les 5",comp:"C1",max:3},
-      {label:"Question proactive siège enfant + info légale",comp:"C2",max:3},
-      {label:"Information légale siège taxi France communiquée",comp:"C2",max:3},
-      {label:"Mention 3 bagages → vérification véhicule adapté",comp:"C1",max:3},
-      {label:"Reformulation synthèse complète avant confirmation",comp:"C1",max:3},
-      {label:"Mention panneau au nom à l'aéroport",comp:"C1",max:3},
-      {label:"Clôture fidélisante \"good flight\"",comp:"C5",max:3},
+      {label:"Heure de vol DÉPART demandée (pas arrivée)",comp:"C1",max:3},
+      {label:"Information siège enfant + obligation légale France",comp:"C2",max:3},
+      {label:"Vérification véhicule adapté (bagages + enfant)",comp:"C1",max:3},
+      {label:"Cohérence horaire vérifiée",comp:"C2",max:3},
+      {label:"Aucune mention de pancarte (client qui part)",comp:"C1",max:3},
+      {label:"Clôture Have a good flight",comp:"C5",max:3},
     ],
   },
   {
@@ -691,271 +680,216 @@ const SIMS = [
     maxScore:18, threshold:13,
     courseCtx:"Un client australien a commandé un taxi il y a 20 minutes et il n'est toujours pas là. Il est stressé car il doit prendre un train. Règle d'or C3 : rester calme, ne JAMAIS se justifier avant d'avoir identifié le client, donner une information précise (modèle du véhicule + délai exact). Si tu es vague, le client s'énerve encore plus.",
     phrases:[
-      {fr:"Je comprends, ne vous inquiétez pas",en:"I understand, don't worry — I'll check right away."},
-      {fr:"Votre nom ?",en:"May I have your name please?"},
-      {fr:"Un instant, je vérifie",en:"Please hold on for just a moment while I check."},
-      {fr:"Votre chauffeur arrive dans X min",en:"Your driver is X minutes away. He's in a [couleur + modèle]."},
-      {fr:"Vous attraperez votre train",en:"Don't worry, you will catch your train."},
+      {fr:"Je comprends, ne vous inquiétez pas",en:"I understand, don't worry — I'll check right away.",pr:"aï ônderstand dont wori aïl tchek raït awéi"},
+      {fr:"Votre nom ?",en:"May I have your name please?",pr:"méi aï hav yor néim pliz"},
+      {fr:"Un instant, je vérifie",en:"Please hold on for just a moment while I check.",pr:"pliz hôld on for djôst a môment"},
+      {fr:"Votre chauffeur arrive dans X min",en:"Your driver is X minutes away. He is in a [color + model].",pr:"yor draïver iz X minits awéi"},
     ],
     steps:[
       {n:"1",title:"Réassurance immédiate",desc:"Rester calme. Ne pas se justifier. Agir immédiatement.",eg:"I understand, don't worry — I'll check right away."},
-      {n:"2",title:"Identification avant tout",desc:"Ne jamais donner d'info avant d'avoir identifié le client.",eg:"May I have your name please? And your phone number?"},
-      {n:"3",title:"Consultation & info précise",desc:"Délai exact + description du véhicule. Jamais vague.",eg:"Mr. Brown, your driver is 2 minutes away. He's in a black Peugeot 508."},
-      {n:"4",title:"Réassurance sur l'objectif",desc:"Rassurer sur le train sans faire de promesse impossible.",eg:"Don't worry, you will catch your train."},
-      {n:"5",title:"Clôture sobre",desc:"Pas trop de mots. Sobre et professionnel.",eg:"Your driver will be there shortly. Have a good journey."},
+      {n:"2",title:"Identification avant tout",desc:"Jamais donner d'info avant d'avoir identifié le client.",eg:"May I have your name please? And your phone number?"},
+      {n:"3",title:"Info précise : délai + véhicule",desc:"Délai exact + description du véhicule. Jamais vague.",eg:"Mr. Brown, your driver is 2 minutes away. He is in a black Peugeot 508."},
+      {n:"4",title:"Réassurance sur le train",desc:"Rassurer sans promettre l'impossible.",eg:"You should have plenty of time to catch your train."},
     ],
-    pitfalls:["Dire 'he'll be there soon' sans délai précis — le client va insister.","Se justifier ('there's a lot of traffic') avant d'identifier — très mal perçu.","Promettre 'you WILL catch your train' si on n'est pas sûr — préférer 'you should'."],
-    clientCard:"You are: Michael Brown, Australian businessman. Taxi booked 20 min ago, still not here. Need to catch a train. Phone: +61 400 123 456. Impatient but not rude. If adviser gives precise info (ETA + car): calm down.",
-    systemPrompt:`You are Michael Brown, Australian businessman. You booked a TAXITL taxi 20 minutes ago and it hasn't arrived. You need to catch a train. Respond ONLY in English. Start stressed and impatient. Phone: "+61 400 123 456". If adviser stays calm and gives precise info (exact ETA + car color/model): gradually calm down. If vague ("soon"): say "But when EXACTLY? I'm going to miss my train!" Keep responses short.`,
+    pitfalls:["Dire 'soon' sans délai précis.","Se justifier avant d'identifier le client.","Promettre 'you WILL catch your train' — préférer 'you should'."],
+    clientCard:"You are: Michael Brown, Australian businessman. Taxi booked 20 min ago, still not here. Need to catch a train. Impatient but not rude.",
+    systemPrompt:`You are Michael Brown, Australian businessman. You booked a TAXITL taxi 20 minutes ago and it has not arrived. You need to catch a train. Respond ONLY in English. Start stressed and impatient. Phone: "+61 400 123 456". If adviser stays calm and gives precise info (exact ETA + car color and model): gradually calm down. If vague like "soon": say "But when EXACTLY? I am going to miss my train!" Keep responses to 1-2 short sentences.`,
     criteria:[
       {label:"Calme maintenu face au ton stressé",comp:"C3",max:3},
-      {label:"Pas de justification avant l'identification",comp:"C3",max:3},
-      {label:"Identification complète avant consultation CRM",comp:"C1",max:3},
-      {label:"Information précise : délai + description véhicule",comp:"C3",max:3},
-      {label:"Réassurance sur le train — pas de promesse vague",comp:"C3",max:3},
-      {label:"Clôture professionnelle sobre",comp:"C1",max:3},
-    ],
-  },
-  {
-    id:4, title:"Airport arrival", sub:"Client à l'aéroport — chauffeur introuvable", level:"⭐⭐", comps:["C1","C2"],
-    context:"Cliente vient d'atterrir, ne voit pas son chauffeur. Rassurer immédiatement, localiser le chauffeur, gérer les bagages.",
-    maxScore:18, threshold:13,
-    courseCtx:"Une femme d'affaires britannique vient d'atterrir à l'aéroport de Lyon et ne voit pas son chauffeur TAXITL. Elle est légèrement inquiète mais polie. Ta mission : rassurer immédiatement avec 'No problem', identifier, lui expliquer précisément où est le chauffeur (sortie du terminal avec panneau à son nom), et gérer proactivement la question des bagages.",
-    phrases:[
-      {fr:"Pas de problème",en:"No problem — let me check for you."},
-      {fr:"Votre chauffeur vous attend",en:"Your driver is waiting for you at the terminal exit with a sign with your name."},
-      {fr:"Des bagages à récupérer ?",en:"Do you have luggage to collect?"},
-      {fr:"Votre chauffeur attendra",en:"Your driver will wait for you — take all the time you need."},
-      {fr:"Bon séjour à Lyon",en:"Have a good stay in Lyon!"},
-    ],
-    steps:[
-      {n:"1",title:"Réassurance immédiate",desc:"'No problem' en premier. Pas de question avant.",eg:"No problem, may I have your name please?"},
-      {n:"2",title:"Identification",desc:"Nom + téléphone pour retrouver la réservation.",eg:"Can I also have your phone number?"},
-      {n:"3",title:"Position précise du chauffeur",desc:"Sortie du terminal + panneau au nom — être très précis.",eg:"Your driver is waiting at the terminal exit with a sign with your name."},
-      {n:"4",title:"Question bagages proactive",desc:"Elle a peut-être des bagages en soute — demander.",eg:"Do you have any luggage to collect?"},
-      {n:"5",title:"Réassurance sur l'attente",desc:"Le chauffeur attendra — pas de pression.",eg:"Your driver will wait for you, take all the time you need."},
-      {n:"6",title:"Clôture personnalisée",desc:"Souhait adapté à Lyon.",eg:"Have a good stay in Lyon!"},
-    ],
-    pitfalls:["Commencer par une question avant de rassurer — 'No problem' doit être la première chose dite.","Ne pas mentionner le panneau au nom — le client va chercher au mauvais endroit.","Oublier la question bagages — elle a peut-être des valises en soute."],
-    clientCard:"You are: Emma Wilson, British businesswoman. Just landed at Lyon Airport. Can't see driver. Phone: +44 7911 123456. 2 bags to collect. Slightly worried. If adviser is clear: quickly reassured.",
-    systemPrompt:`You are Emma Wilson, British businesswoman. Just landed at Lyon Saint-Exupéry Airport. Cannot see your TAXITL driver. Respond ONLY in English. Slightly worried but polite. Phone: "+44 7911 123456". 2 bags at luggage carousel. If adviser says "No problem" and gives clear info (terminal exit + name sign): become quickly relieved. Keep responses short.`,
-    criteria:[
-      {label:"Réassurance immédiate \"No problem\"",comp:"C2",max:3},
-      {label:"Identification complète avant consultation",comp:"C1",max:3},
-      {label:"Info précise position chauffeur (terminal exit + panneau)",comp:"C2",max:3},
-      {label:"Question proactive sur les bagages",comp:"C2",max:3},
-      {label:"Réassurance sur l'attente chauffeur",comp:"C2",max:3},
-      {label:"Clôture personnalisée \"good stay in Lyon\"",comp:"C5",max:3},
-    ],
-  },
-  {
-    id:5, title:"Booking confirmation", sub:"Confirmation de réservation web", level:"⭐", comps:["C1"],
-    context:"Client a réservé en ligne et veut confirmer. Le conseiller doit identifier, consulter le CRM et reformuler fidèlement.",
-    maxScore:18, threshold:13,
-    courseCtx:"Un client américain a réservé un taxi sur le site TAXITL et veut s'assurer que sa réservation est bien enregistrée. C'est un appel simple mais qui teste la rigueur : identification avant consultation, lecture fidèle du dossier, question tag de confirmation ('is that correct?'), et clôture avec une question ouverte ('anything else?').",
-    phrases:[
-      {fr:"Je cherche dans notre système",en:"Let me check in our system. [Pause]"},
-      {fr:"Je vois votre réservation",en:"I see your booking: [détails complets]... is that correct?"},
-      {fr:"Votre réservation est confirmée",en:"Your booking is confirmed."},
-      {fr:"Autre chose ?",en:"Is there anything else I can help you with?"},
-      {fr:"Bon voyage",en:"Have a good trip, Mr/Ms [nom]!"},
-    ],
-    steps:[
-      {n:"1",title:"Identification avant tout",desc:"Nom + téléphone AVANT de chercher dans le système.",eg:"May I have your name and phone number please?"},
-      {n:"2",title:"Consultation & lecture fidèle",desc:"Lire tous les détails du dossier — sans rien inventer.",eg:"I see your booking: Friday August 22nd at 3:00 PM from 25 Rue Garibaldi to Gare Part-Dieu..."},
-      {n:"3",title:"Question tag de confirmation",desc:"Toujours terminer la reformulation par une question.",eg:"...Two persons, one suitcase. Is that correct?"},
-      {n:"4",title:"Confirmation claire",desc:"Confirmer la réservation explicitement.",eg:"Your booking is confirmed."},
-      {n:"5",title:"Question ouverte de clôture",desc:"Toujours proposer une aide supplémentaire.",eg:"Is there anything else I can help you with?"},
-    ],
-    pitfalls:["Chercher dans le système avant d'identifier le client — erreur de procédure.","Oublier la question tag ('is that correct?') — le client peut avoir des corrections à faire.","Sauter la question 'anything else?' — manque de service."],
-    clientCard:"You are: Daniel Harris, American tourist. Booked taxi: Friday Aug 22 at 3 PM from 25 Rue Garibaldi to Gare Part-Dieu. 2 persons, 1 suitcase. Phone: +1 213 555 0199. Calm, wants quick confirmation.",
-    systemPrompt:`You are Daniel Harris, American tourist. Booked on TAXITL website: Friday August 22 at 3:00 PM, from "25 Rue Garibaldi" to "Gare Part-Dieu", 2 persons, 1 suitcase. Phone: "+1 213 555 0199". Calm. If adviser reads back all details correctly: confirm happily. If any detail is wrong: politely correct it. Keep responses short.`,
-    criteria:[
       {label:"Identification avant consultation CRM",comp:"C1",max:3},
-      {label:"Lecture complète et fidèle du dossier CRM",comp:"C1",max:3},
-      {label:"Reformulation avec question tag (is that correct?)",comp:"C1",max:3},
-      {label:"Confirmation claire de la réservation",comp:"C1",max:3},
-      {label:"Question ouverte de clôture (anything else?)",comp:"C1",max:3},
-      {label:"Clôture personnalisée",comp:"C5",max:3},
+      {label:"Délai précis + description véhicule",comp:"C3",max:6},
+      {label:"Réassurance sur le train sans promesse impossible",comp:"C3",max:3},
+      {label:"Clôture professionnelle",comp:"C1",max:3},
     ],
   },
   {
-    id:6, title:"Airport departure", sub:"Départ domicile → aéroport avec vol précis", level:"⭐⭐", comps:["C1","C2"],
-    context:"Réservation aéroport avec contrainte de vol. Demander l'heure de vol avec justification et vérifier la cohérence horaire.",
-    maxScore:18, threshold:13,
-    courseCtx:"Un homme d'affaires britannique réserve un taxi pour l'aéroport demain matin. La particularité : il a un vol précis. Tu dois demander l'heure de vol proactivement (avec une justification) pour vérifier que la prise en charge à 5h30 est cohérente avec un vol à 8h00. C'est une compétence C2 : anticiper les besoins du client.",
+    id:4, title:"Airport arrival", sub:"Client arrive à l'aéroport — chauffeur introuvable", level:"⭐⭐⭐", comps:["C2","C3"],
+    context:"Cliente vient d'atterrir, ne voit pas son chauffeur. ARRIVÉE = proposer pancarte au nom. Demander heure d'ATTERRISSAGE si besoin.",
+    maxScore:15, threshold:11,
+    courseCtx:"Emma Wilson vient d'atterrir à Lyon Saint-Exupéry et ne voit pas son chauffeur TAXITL. C'est une ARRIVÉE : on propose systématiquement un chauffeur avec une pancarte au nom du passager à la sortie arrivées. On demande l'heure d'atterrissage (pas de départ). Géolocaliser le client : quel terminal, quelle sortie.",
     phrases:[
-      {fr:"Heure de vol ? (avec justification)",en:"Can you tell me your flight time? This helps us make sure you arrive comfortably."},
-      {fr:"Panneau au nom",en:"The driver will wait for you at the terminal exit with a sign with your name."},
-      {fr:"Confirmation complète",en:"I confirm: [résumé]. Your booking is confirmed. Have a good flight!"},
+      {fr:"Ne vous inquiétez pas",en:"No problem, I will sort this out immediately.",pr:"nô prôblèm aïl sort dis aout"},
+      {fr:"Où êtes-vous exactement ?",en:"Where are you exactly? Which exit or terminal?",pr:"wèr ar you egzaktli"},
+      {fr:"Pancarte à votre nom",en:"The driver will be waiting with a sign with your name at the arrivals exit.",pr:"de draïver wil bi wéïting wid a saïn"},
+      {fr:"Heure d'atterrissage ?",en:"What time did your flight arrive?",pr:"wot taïm did yor flaït eraïv"},
     ],
     steps:[
-      {n:"1",title:"Q1 à Q5 complètes",desc:"Poser toutes les questions obligatoires.",eg:"What is your departure address? / Where would you like to go? / For what time?"},
-      {n:"2",title:"Question vol proactive + justification",desc:"Ne pas attendre que le client le dise — le demander avec une raison.",eg:"Can you tell me your flight time? This helps us make sure you arrive comfortably."},
-      {n:"3",title:"Vérification cohérence horaire",desc:"5h30 de départ pour un vol à 8h00 = OK pour Lyon Airport (environ 30 min de trajet).",eg:"Perfect, 5:30 AM for an 8:00 AM flight — that's very comfortable."},
-      {n:"4",title:"Confirmation complète + clôture",desc:"Tout confirmer + panneau au nom + clôture aéroport.",eg:"The driver will wait at the terminal exit with a sign with your name. Have a good flight!"},
+      {n:"1",title:"Réassurance immédiate",desc:"Cliente stressée. Réassurer AVANT de poser des questions.",eg:"No problem, I will sort this out immediately."},
+      {n:"2",title:"Géolocaliser le client",desc:"Terminal, sortie, repères visuels.",eg:"Where are you exactly? Which exit are you at?"},
+      {n:"3",title:"Proposer la pancarte — ARRIVÉE",desc:"Client qui ARRIVE = toujours proposer pancarte au nom.",eg:"The driver will be waiting with a sign with your name at the arrivals exit."},
+      {n:"4",title:"Coordination chauffeur",desc:"Contacter le chauffeur et informer la cliente.",eg:"I am contacting your driver now. Please stay at exit B."},
     ],
-    pitfalls:["Ne pas demander l'heure de vol — manque de C2.","Demander le vol sans expliquer pourquoi — le client peut trouver ça intrusif.","Oublier le panneau au nom à l'aéroport."],
-    clientCard:"You are: Richard Taylor, British businessman. Taxi to airport: 42 Avenue Jean Jaurès tomorrow Aug 21 at 5:30 AM to Lyon Airport. 2 adults, 2 large suitcases. Phone: +44 7800 555 321. Flight 8:00 AM to London. Only mention flight if asked.",
-    systemPrompt:`You are Richard Taylor, British businessman. Need taxi to airport. Departure: "42 Avenue Jean Jaurès, Lyon". Destination: "Lyon Saint-Exupéry Airport". Tomorrow August 21 at 5:30 AM. 2 adults, 2 large suitcases. Phone: "+44 7800 555 321". Flight: "8:00 AM to London Heathrow" — ONLY mention if specifically asked. Professional, efficient. Keep responses short.`,
+    pitfalls:["Ne pas proposer de pancarte — c'est une ARRIVÉE, c'est obligatoire.","Demander l'heure de départ du vol au lieu de l'heure d'atterrissage.","Ne pas géolocaliser le client (quel terminal, quelle sortie)."],
+    clientCard:"You are: Emma Wilson, British businesswoman. Just landed at Lyon airport. Cannot see TAXITL driver. Near exit B. Flight arrived at 14:35. Slightly worried.",
+    systemPrompt:`You are Emma Wilson, British businesswoman. You just landed at Lyon Saint-Exupéry Airport and cannot see your TAXITL driver. Respond ONLY in English. Slightly worried but polite. Phone: "+44 7911 123456". You are near exit B. Your flight ARRIVED at 14:35 — only say this if adviser asks what time your flight arrived or landed, never for departure time. If adviser says a driver will wait with a sign with your name at arrivals exit: react positively, say you will look for it. If asked flight number: "BA4521". Keep responses to 1-2 sentences. Wait to be asked.`,
     criteria:[
-      {label:"Q1 à Q5 posées toutes les 5",comp:"C1",max:3},
-      {label:"Question vol avec justification",comp:"C2",max:3},
-      {label:"Cohérence heure prise en charge / vol",comp:"C2",max:3},
-      {label:"Mention panneau au nom à l'aéroport",comp:"C1",max:3},
-      {label:"Confirmation complète avant clôture",comp:"C1",max:3},
-      {label:"Clôture aéroport \"good flight\"",comp:"C5",max:3},
+      {label:"Réassurance immédiate avant questions",comp:"C3",max:3},
+      {label:"Géolocalisation : terminal et sortie demandés",comp:"C2",max:3},
+      {label:"Pancarte au nom proposée à la sortie arrivées",comp:"C2",max:3},
+      {label:"Heure d'ATTERRISSAGE demandée (pas de départ)",comp:"C1",max:3},
+      {label:"Coordination chauffeur communiquée",comp:"C2",max:3},
     ],
   },
   {
-    id:7, title:"Train arrival", sub:"Arrivée train — groupe avec bagages", level:"⭐⭐", comps:["C1","C2"],
-    context:"Groupe arrivant en train à Part-Dieu. Coordination chauffeur et gestion proactive du risque de retard.",
-    maxScore:21, threshold:15,
-    courseCtx:"Un groupe de touristes américains doit prendre un taxi à la gare Part-Dieu à l'arrivée de leur train. Point critique C2 : anticiper proactivement le risque de retard du train — si le conseiller ne le mentionne pas, le client le demandera. Le point de rendez-vous en gare doit être très précis (sortie principale + panneau).",
+    id:5, title:"Booking confirmation", sub:"Confirmation réservation web — départ gare", level:"⭐⭐", comps:["C1","C2"],
+    context:"Client a réservé en ligne et veut confirmer. Départ vers la gare = pas de pancarte. Demander heure du train (départ).",
+    maxScore:15, threshold:11,
+    courseCtx:"Daniel Harris a réservé sur le site TAXITL et appelle pour confirmer. C'est un départ vers la Gare Part-Dieu — pas de pancarte. Si tu demandes l'heure du train, demande l'heure à laquelle son train PART (départ), pas l'heure d'arrivée. Lire fidèlement la réservation et reformuler avant confirmation.",
     phrases:[
-      {fr:"Heure d'arrivée du train ?",en:"Can you give me your train arrival time?"},
-      {fr:"Point de RDV en gare",en:"The driver will wait at the main exit with a sign with your name."},
-      {fr:"Si retard du train",en:"Please call us if your train is delayed — we will adjust the driver's time."},
-      {fr:"Bon voyage",en:"Have a good journey! / We'll be waiting for you."},
+      {fr:"Je consulte votre réservation",en:"Let me pull up your booking.",pr:"let mi poul ôp yor bouking"},
+      {fr:"Je vois votre réservation...",en:"I can see your booking: [détails]. Is that correct?",pr:"aï kan si yor bouking iz dat korekt"},
+      {fr:"Question tag obligatoire",en:"Is that correct?",pr:"iz dat korekt"},
     ],
     steps:[
-      {n:"1",title:"Identification + heure de train",desc:"Commencer par identifier, puis demander l'heure d'arrivée du train.",eg:"Can you give me your train arrival time?"},
-      {n:"2",title:"Destination & groupe",desc:"Destination, nombre de personnes, bagages.",eg:"And what is your destination? / How many people are you?"},
-      {n:"3",title:"Point de RDV précis en gare",desc:"Sortie principale, panneau au nom.",eg:"Your driver will wait at the main exit of Part-Dieu with a sign with your name."},
-      {n:"4",title:"Gestion retard train — proactive",desc:"Anticiper sans attendre que le client le demande.",eg:"Please call us if your train is delayed — we will adjust the driver's schedule."},
-      {n:"5",title:"Clôture chaleureuse",desc:"",eg:"Have a good journey! We'll be waiting for you."},
+      {n:"1",title:"Identification + consultation CRM",desc:"Identifier le client, consulter la réservation.",eg:"May I have your name please? Let me pull up your booking."},
+      {n:"2",title:"Lecture fidèle + reformulation",desc:"Lire tous les détails dans l'ordre.",eg:"I can see your booking for Friday at 3 PM from 25 Rue Garibaldi to Gare Part-Dieu."},
+      {n:"3",title:"Question tag obligatoire",desc:"Toujours finir par Is that correct?",eg:"Is that correct, Mr Harris?"},
+      {n:"4",title:"Heure du train départ si pertinent",desc:"Départ gare = demander heure de départ du train.",eg:"What time does your train depart?"},
     ],
-    pitfalls:["Ne pas mentionner la procédure en cas de retard — le client le demandera systématiquement.","Point de RDV vague ('in front of the station') — il faut la sortie principale.","Oublier le panneau au nom."],
-    clientCard:"You are: Olivia Green, American tourist leading group. Train arrives 18:15 from Paris at Gare Part-Dieu. 3 adults, 3 medium suitcases. Destination: Sofitel Lyon Bellecour, 20 Quai Gailleton. Phone: +1 310 555 7845. If no mention of late train: ask 'What if our train is delayed?'",
-    systemPrompt:`You are Olivia Green, American tourist leading a group. Need taxi at Gare Part-Dieu. Train arrives 18:15 from Paris. 3 adults, 3 medium suitcases. Destination: "Sofitel Lyon Bellecour, 20 Quai Gailleton". Phone: "+1 310 555 7845". IMPORTANT: if adviser doesn't mention what to do if train is late before ending call, ask "What if our train is delayed?" Friendly and organised. Keep responses short.`,
+    pitfalls:["Oublier la question tag Is that correct.","Proposer une pancarte — le client va À la gare, il ne la quitte pas.","Demander l'heure d'ARRIVÉE du train au lieu du DÉPART."],
+    clientCard:"You are: Daniel Harris, American tourist. Booked online: Friday Aug 22 at 3 PM from 25 Rue Garibaldi to Gare Part-Dieu. 2 persons, 1 suitcase. Train departs 16:30.",
+    systemPrompt:`You are Daniel Harris, American tourist. You booked on the TAXITL website: Friday August 22 at 3:00 PM, from "25 Rue Garibaldi" to "Gare Part-Dieu", 2 persons, 1 suitcase. Phone: "+1 213 555 0199". Train DEPARTS at 16:30 — only say this if adviser asks what time your train departs or leaves, never for arrival time. Do NOT expect any sign — you are going TO the station, not arriving from a journey. Calm and polite. If adviser reads all details correctly and asks "Is that correct?": confirm happily. STRICT: 1-2 sentences max. Answer only what is asked.`,
     criteria:[
-      {label:"Question heure d'arrivée du train",comp:"C1",max:3},
-      {label:"Destination demandée",comp:"C1",max:3},
-      {label:"Q4 et option bagages posées",comp:"C1",max:3},
-      {label:"Point de RDV précis (sortie principale + panneau)",comp:"C2",max:3},
-      {label:"Information proactive sur gestion du retard train",comp:"C2",max:3},
-      {label:"Invitation à rappeler si retard",comp:"C2",max:3},
-      {label:"Clôture chaleureuse",comp:"C5",max:3},
+      {label:"Identification client + consultation CRM",comp:"C1",max:3},
+      {label:"Lecture fidèle de tous les détails",comp:"C1",max:3},
+      {label:"Question tag Is that correct obligatoire",comp:"C1",max:3},
+      {label:"Heure de train DÉPART demandée (pas arrivée)",comp:"C1",max:3},
+      {label:"Aucune mention de pancarte (départ vers gare)",comp:"C1",max:3},
     ],
   },
   {
-    id:8, title:"Lost wallet", sub:"Portefeuille oublié dans le taxi", level:"⭐⭐⭐", comps:["C1","C2","C3"],
-    context:"Client paniqué a oublié son portefeuille dans un taxi. Situation urgente : rassurer, identifier, trouver le chauffeur, solution concrète.",
-    maxScore:24, threshold:17,
-    courseCtx:"Situation avancée C3 : un touriste britannique a oublié son portefeuille dans un taxi TAXITL. Il est légèrement paniqué. Ta mission : réassurer immédiatement ('don't worry'), identifier le client, lui demander les détails du trajet pour retrouver le bon chauffeur, mettre en attente professionnellement, contacter le chauffeur en direct, et proposer une solution concrète avec un délai précis et un point de rendez-vous.",
+    id:6, title:"Airport departure pro", sub:"Départ aéroport — vol tôt — cohérence horaire", level:"⭐⭐⭐", comps:["C1","C2","C5"],
+    context:"Réservation départ aéroport tôt le matin. Vérifier cohérence horaire. Pas de pancarte. Heure de vol DÉPART.",
+    maxScore:15, threshold:11,
+    courseCtx:"Richard Taylor doit prendre un avion à 8h du matin. Il veut un taxi à 5h30. Le conseiller doit demander l'heure du vol (départ), vérifier que l'horaire est cohérent, et recommander si nécessaire. Pas de pancarte — il PART. Clôture Have a good flight.",
     phrases:[
-      {fr:"Ne vous inquiétez pas",en:"I understand, don't worry — I'll check right away."},
-      {fr:"Détails du trajet",en:"Do you remember the time and departure address of your trip?"},
-      {fr:"Un instant, je contacte le chauffeur",en:"Please hold on while I contact the driver directly."},
-      {fr:"Solution concrète",en:"The driver found your wallet. He can meet you at [lieu] in about [X] minutes."},
-      {fr:"Confirmation finale",en:"Is that okay for you?"},
+      {fr:"Votre heure de vol (départ) ?",en:"What time does your flight depart?",pr:"wot taïm daz yor flaït dipârt"},
+      {fr:"Vérification cohérence horaire",en:"Your flight is at 8 AM and you need the taxi at 5:30 AM — that gives you enough time.",pr:"yor flaït iz at éit éi-em"},
+      {fr:"Bon vol !",en:"Have a good flight, Mr Taylor!",pr:"hav a good flaït"},
     ],
     steps:[
-      {n:"1",title:"Réassurance immédiate",desc:"'Don't worry' avant toute question.",eg:"I understand, don't worry — I'll check right away."},
-      {n:"2",title:"Identification complète",desc:"Nom + téléphone pour retrouver la réservation.",eg:"May I have your name and phone number?"},
-      {n:"3",title:"Détails du trajet",desc:"Pour identifier le bon chauffeur parmi tous les courses.",eg:"Do you remember the time and your departure address?"},
-      {n:"4",title:"Mise en attente professionnelle",desc:"Expliquer clairement pourquoi on met en attente.",eg:"Please hold on while I contact the driver directly."},
-      {n:"5",title:"Solution concrète",desc:"Délai précis + point de RDV précis.",eg:"The driver found your wallet. He can be at Gare Part-Dieu in about 10 minutes, in front of Fnac."},
-      {n:"6",title:"Confirmation finale",desc:"Toujours valider avec le client.",eg:"Is that okay for you?"},
+      {n:"1",title:"Collecte standard",desc:"5 infos obligatoires + heure de vol DÉPART.",eg:"What time does your flight depart, Mr Taylor?"},
+      {n:"2",title:"Vérification cohérence horaire",desc:"Vol à 8h — taxi à 5h30 — confirmer que c'est suffisant.",eg:"Your flight is at 8 AM and pickup at 5:30 AM — you should have plenty of time."},
+      {n:"3",title:"Clôture Have a good flight",desc:"Personnaliser la clôture avec le nom + destination.",eg:"Have a good flight, Mr Taylor!"},
     ],
-    pitfalls:["Donner une solution floue ('the driver will come back') sans délai ni lieu précis.","Ne pas mettre en attente — agir en direct sans expliquer ce qu'on fait.","Oublier de demander les détails du trajet — impossible de retrouver le bon chauffeur sans ça."],
-    clientCard:"You are: David Thompson, British tourist. Left wallet in TAXITL taxi. Left from 25 Rue Victor Hugo ~20 min ago, went to Gare Part-Dieu. Brown leather wallet. Phone: +44 7700 888 234. Slightly panicked. If adviser is efficient: very relieved.",
-    systemPrompt:`You are David Thompson, British tourist. You left your wallet in a TAXITL taxi. Start slightly panicked. Trip: departed "25 Rue Victor Hugo" about 20 minutes ago, destination "Gare Part-Dieu". Brown leather wallet — only say this if specifically asked. Phone: "+44 7700 888 234". If adviser efficiently reassures, identifies you, asks trip details, and gives concrete solution (driver found it, meeting point + ETA): become very relieved and grateful. Keep responses short.`,
+    pitfalls:["Proposer une pancarte — client qui PART.","Demander l'heure d'ARRIVÉE du vol au lieu du DÉPART.","Oublier de vérifier la cohérence horaire."],
+    clientCard:"You are: Richard Taylor, British businessman. To airport tomorrow at 5:30 AM from 42 Avenue Jean Jaurès. Flight departs 08:00. 2 adults, 2 suitcases. No sign expected.",
+    systemPrompt:`You are Richard Taylor, British businessman going to Lyon Saint-Exupéry Airport. Pickup from: "42 Avenue Jean Jaurès, Lyon". Tomorrow at 5:30 AM. 2 adults, 2 large suitcases. Phone: "+44 7800 555 321". Flight DEPARTS at 08:00 — only say this if adviser asks what time your flight departs or leaves. Do NOT expect any sign — you are departing. If adviser asks flight departure time: "My flight leaves at 8 AM". Calm and professional. 1-2 sentences max.`,
     criteria:[
-      {label:"Réassurance immédiate \"don't worry\"",comp:"C2",max:3},
-      {label:"Identification complète avant action",comp:"C1",max:3},
-      {label:"Questions sur le trajet pour identifier le chauffeur",comp:"C2",max:3},
-      {label:"Mise en attente professionnelle avec explication",comp:"C3",max:3},
-      {label:"Contact chauffeur en direct",comp:"C2",max:3},
-      {label:"Solution concrète avec délai précis",comp:"C2",max:3},
-      {label:"Point de RDV précis",comp:"C2",max:3},
-      {label:"Confirmation finale avant clôture",comp:"C1",max:3},
+      {label:"Heure de vol DÉPART demandée",comp:"C1",max:3},
+      {label:"Aucune mention pancarte (client qui part)",comp:"C1",max:3},
+      {label:"Cohérence horaire vérifiée et communiquée",comp:"C2",max:3},
+      {label:"Clôture Have a good flight personnalisée",comp:"C5",max:3},
+      {label:"Confirmation professionnelle avec délai",comp:"C1",max:3},
     ],
   },
   {
-    id:9, title:"Unknown location", sub:"Client perdu — géolocalisation par repères", level:"⭐⭐⭐", comps:["C1","C2"],
+    id:7, title:"Train arrival — group", sub:"Arrivée train — groupe avec bagages", level:"⭐⭐⭐", comps:["C1","C2","C5"],
+    context:"Groupe arrive en train à Part-Dieu. ARRIVÉE = pancarte obligatoire. Heure d'ARRIVÉE du train demandée.",
+    maxScore:15, threshold:11,
+    courseCtx:"Olivia Green arrive avec un groupe en train à Gare Part-Dieu. C'est une ARRIVÉE en gare — on propose la pancarte au nom à la sortie. On demande l'heure d'ARRIVÉE du train (pas de départ). Gérer aussi le risque de retard proactivement.",
+    phrases:[
+      {fr:"Heure d'arrivée de votre train ?",en:"What time does your train arrive?",pr:"wot taïm daz yor tréïn eraïv"},
+      {fr:"Pancarte au nom à la sortie",en:"The driver will be at the exit with a sign with your name.",pr:"de draïver wil bi at di egzit wid a saïn"},
+      {fr:"En cas de retard, appelez-nous",en:"If your train is delayed, please call us and we will adjust.",pr:"if yor tréïn iz diléïd pliz kol ôs"},
+    ],
+    steps:[
+      {n:"1",title:"Collecte + heure d'ARRIVÉE train",desc:"Groupe qui arrive — demander l'heure à laquelle le train ARRIVE.",eg:"What time does your train arrive at Part-Dieu?"},
+      {n:"2",title:"Pancarte obligatoire — ARRIVÉE",desc:"Arrivée en gare = chauffeur avec pancarte au nom.",eg:"The driver will be waiting at the exit with a sign with your name, Mrs Green."},
+      {n:"3",title:"Gestion proactive du retard",desc:"Anticiper le risque retard train.",eg:"If your train is delayed, please call us and we will adjust immediately."},
+    ],
+    pitfalls:["Oublier la pancarte — c'est une ARRIVÉE.","Demander l'heure de DÉPART au lieu de l'ARRIVÉE du train.","Ne pas anticiper le risque retard."],
+    clientCard:"You are: Olivia Green, American tourist leading a group arriving at Gare Part-Dieu. Train arrives 18:15 from Paris. 3 adults, 3 suitcases. Destination: Sofitel Lyon Bellecour.",
+    systemPrompt:`You are Olivia Green, American tourist leading a group arriving at Gare Part-Dieu by train from Paris. Train ARRIVES at 18:15 — only say this if adviser asks what time your train arrives. 3 adults, 3 medium suitcases. Destination: "Sofitel Lyon Bellecour, 20 Quai Gailleton". Phone: "+1 310 555 7845". If adviser asks departure time instead of arrival time: clarify "We are arriving, our train arrives at 18:15". If adviser mentions a driver with a sign at the exit: react positively. 1-2 sentences max.`,
+    criteria:[
+      {label:"Heure d'ARRIVÉE train demandée (pas départ)",comp:"C1",max:3},
+      {label:"Pancarte au nom proposée à la sortie",comp:"C2",max:3},
+      {label:"Gestion proactive risque retard",comp:"C2",max:3},
+      {label:"Vérification véhicule adapté groupe + bagages",comp:"C1",max:3},
+      {label:"Destination confirmée avec reformulation",comp:"C1",max:3},
+    ],
+  },
+  {
+    id:8, title:"Lost wallet", sub:"Portefeuille oublié dans le taxi", level:"⭐⭐⭐", comps:["C2","C3"],
+    context:"Client paniqué a oublié son portefeuille dans un taxi. Urgence : réassurer, identifier la course, trouver le chauffeur.",
+    maxScore:15, threshold:11,
+    courseCtx:"David Thompson a oublié son portefeuille dans un taxi TAXITL. Situation urgente et émotionnelle. Réassurer AVANT tout, identifier la course (heure + trajet), contacter le chauffeur, donner un délai de retour. Ne jamais demander d'informations avant d'avoir rassuré.",
+    phrases:[
+      {fr:"Ne vous inquiétez pas",en:"Don't worry, we will help you recover it.",pr:"dont wori wi wil hélp you rikover it"},
+      {fr:"Heure et trajet du taxi ?",en:"Can you tell me approximately when you took the taxi and where you went?",pr:"kan you tel mi approximetli wen you touk de taksi"},
+      {fr:"Je contacte le chauffeur",en:"I am contacting the driver now.",pr:"aï am kontakting de draïver naou"},
+    ],
+    steps:[
+      {n:"1",title:"Réassurance AVANT tout",desc:"Client paniqué. Calmer avant de poser des questions.",eg:"Don't worry, we will do everything we can to help you recover it."},
+      {n:"2",title:"Identifier la course",desc:"Heure approximative + trajet pour trouver le chauffeur.",eg:"Can you tell me when you took the taxi and where you went?"},
+      {n:"3",title:"Contacter le chauffeur",desc:"Informer le client qu'on contacte le chauffeur.",eg:"I am contacting the driver now. Please hold on."},
+      {n:"4",title:"Délai de retour d'information",desc:"Donner un délai précis pour le rappel.",eg:"We will call you back within 15 minutes with news."},
+    ],
+    pitfalls:["Demander les informations AVANT de réassurer.","Promettre de retrouver l'objet — juste promettre de chercher.","Ne pas donner de délai précis pour le rappel."],
+    clientCard:"You are: David Thompson, British tourist. Forgot wallet in a TAXITL taxi 20 min ago. Trip from 25 Rue Victor Hugo to Gare Part-Dieu. Brown leather wallet.",
+    systemPrompt:`You are David Thompson, British tourist. You left your wallet in a TAXITL taxi about 20 minutes ago. Start slightly panicked. Trip departed from "25 Rue Victor Hugo" to "Gare Part-Dieu". Brown leather wallet — only say this if specifically asked about the item description. Phone: "+44 7700 900123". If adviser reassures you first before asking questions: calm down progressively. If adviser asks for information without reassuring first: stay anxious. 1-2 sentences max per reply.`,
+    criteria:[
+      {label:"Réassurance immédiate avant toute question",comp:"C3",max:5},
+      {label:"Identification de la course : heure et trajet",comp:"C2",max:4},
+      {label:"Contact chauffeur annoncé au client",comp:"C2",max:3},
+      {label:"Délai de rappel précis communiqué",comp:"C2",max:3},
+    ],
+  },
+  {
+    id:9, title:"Lost tourist", sub:"Client perdu — géolocalisation par repères", level:"⭐⭐⭐", comps:["C2","C3"],
     context:"Client touristique ne connaît pas son adresse. Technique de géolocalisation par repères visuels.",
-    maxScore:18, threshold:13,
-    courseCtx:"Un touriste américain est complètement perdu à Lyon et ne connaît pas l'adresse où il se trouve. Technique C2 avancée : la géolocalisation par repères visuels. Tu demandes ce qu'il voit autour de lui (enseignes, restaurants, monuments), et tu identifies sa position à partir de ces indices. Dans ce cas, il voit 'Bocuse' = Restaurant Paul Bocuse à Collonges-au-Mont-d'Or.",
+    maxScore:12, threshold:9,
+    courseCtx:"William Harris est un touriste américain complètement perdu à Lyon. Il ne connaît pas son adresse. Technique C2 : géolocalisation par repères visuels — demander des enseignes, monuments, noms de rues visibles. Ne jamais dire au client de chercher son adresse — c'est le conseiller qui l'aide à se localiser.",
     phrases:[
-      {fr:"Je vais vous aider",en:"No problem, I'll help you. Can you tell me if there are any shops or restaurants near you?"},
-      {fr:"Le nom d'un restaurant ?",en:"Can you see the name of a restaurant or a shop nearby?"},
-      {fr:"J'ai trouvé votre position",en:"Perfect — you must be near [lieu]. I found you!"},
-      {fr:"Délai précis",en:"I'll send a taxi to you now. The driver will arrive in about 15 minutes."},
-      {fr:"Point de RDV",en:"Please wait in front of the restaurant entrance."},
+      {fr:"Je vais vous aider à vous localiser",en:"No problem, I will help you find your location.",pr:"nô prôblèm aïl hélp you faïnd yor lokéïchn"},
+      {fr:"Repères visuels ?",en:"Can you see any shop signs, street names, or landmarks near you?",pr:"kan you si éni chop saïnz or strit néïmz"},
+      {fr:"J'ai trouvé votre position",en:"I found your location. A driver is on the way.",pr:"aï faound yor lokéïchn"},
     ],
     steps:[
-      {n:"1",title:"Réassurance + technique repères",desc:"Rassurer et demander immédiatement les repères visuels.",eg:"No problem, I'll help you. Can you tell me if there are any shops or restaurants near you?"},
-      {n:"2",title:"Affiner la localisation",desc:"Si réponse vague, demander un nom précis.",eg:"Can you see the name of a restaurant or a shop?"},
-      {n:"3",title:"Identification du lieu",desc:"Bocuse = Collonges-au-Mont-d'Or. Confirmer avec assurance.",eg:"Perfect — you must be near Restaurant Paul Bocuse in Collonges-au-Mont-d'Or."},
-      {n:"4",title:"Q2, Q4, bagages, Q5",desc:"Continuer les questions malgré la situation atypique.",eg:"And where would you like to go? / How many people?"},
-      {n:"5",title:"Solution + RDV précis",desc:"Délai précis + point de RDV devant le restaurant.",eg:"The driver will arrive in about 15 minutes. Please wait in front of the restaurant entrance."},
+      {n:"1",title:"Réassurance",desc:"Touriste perdu = stressé. Rassurer immédiatement.",eg:"No problem at all, I will help you find your location."},
+      {n:"2",title:"Technique repères visuels",desc:"Demander ce qu'il voit : enseignes, monuments, noms de rues.",eg:"Can you see any shop signs, restaurant names, or street signs near you?"},
+      {n:"3",title:"Géolocaliser avec les infos",desc:"Utiliser les repères donnés pour identifier l'adresse.",eg:"Perfect — you must be near Place Bellecour. I can send a driver to you."},
     ],
-    pitfalls:["Demander l'adresse directement — le client ne la connaît pas, c'est le principe de la simulation.","Hésiter ou sembler incertain en identifiant le lieu — être sûr et rassurant.","Oublier les questions obligatoires (Q2, Q4, Q5) même dans cette situation atypique."],
-    clientCard:"You are: William Harris, American tourist, completely lost in Lyon. Can see 'Bocuse' restaurant sign. Destination: Lyon Part-Dieu station. 2 people, 2 suitcases. Phone: +1 646 555 0198. Only say 'Bocuse' if asked about landmarks.",
-    systemPrompt:`You are William Harris, American tourist completely lost in Lyon. Don't know your address. Respond ONLY in English. You can see restaurants and shops nearby. IMPORTANT: only mention "Bocuse" if asked about visible landmarks or restaurant names. Destination: "Lyon Part-Dieu station". 2 people, 2 suitcases. Phone: "+1 646 555 0198". If adviser successfully locates you and gives precise pickup: become relieved. Keep responses short.`,
+    pitfalls:["Demander l'adresse — il ne la connaît pas.","Ne pas rassurer avant de poser des questions.","Ne pas utiliser la technique des repères visuels."],
+    clientCard:"You are: William Harris, American tourist completely lost in Lyon. You can see restaurants and shops. If asked about landmarks: mention Bocuse restaurant nearby.",
+    systemPrompt:`You are William Harris, American tourist completely lost in Lyon. You do not know your address. Respond ONLY in English. Slightly stressed. You can see restaurants and shops nearby. IMPORTANT: only mention "Bocuse" restaurant if adviser asks about visible landmarks, restaurant names, or signs you can see. Destination: "Hotel Carlton, 4 Rue Jussieu, Lyon". Phone: "+1 202 555 0188". If adviser asks for your address directly without helping you locate: say "I have no idea, that is why I am calling". 1-2 sentences max.`,
     criteria:[
-      {label:"Réassurance immédiate \"No problem, I'll help\"",comp:"C2",max:3},
-      {label:"Technique de géolocalisation par repères visuels",comp:"C2",max:3},
-      {label:"Identification correcte du lieu (Bocuse = Collonges)",comp:"C2",max:3},
-      {label:"Q2, Q4, option bagages, Q5 posées malgré la situation",comp:"C1",max:3},
-      {label:"Délai précis communiqué (15 min)",comp:"C2",max:3},
-      {label:"Point de RDV précis (entrée du restaurant)",comp:"C2",max:3},
+      {label:"Réassurance immédiate",comp:"C3",max:3},
+      {label:"Technique repères visuels utilisée",comp:"C2",max:5},
+      {label:"Géolocalisation réussie avec les infos données",comp:"C2",max:4},
     ],
   },
   {
-    id:10, title:"Booking with delay", sub:"Mise en attente pour trouver un chauffeur", level:"⭐⭐", comps:["C1","C2","C3"],
-    context:"Course immédiate mais délai de recherche chauffeur. Gérer la mise en attente professionnellement avec justification.",
-    maxScore:18, threshold:13,
-    courseCtx:"Un appel immédiat avec une contrainte : 3 grosses valises nécessitent un véhicule spécifique qui prend un peu de temps à trouver. La compétence C3 ici : la mise en attente professionnelle avec une justification claire et rassurante. Si tu es vague ('I don't know when'), le client va s'énerver. Si tu expliques ('best driver + right vehicle for your suitcases'), il accepte.",
+    id:10, title:"On hold — urgent departure", sub:"Mise en attente pro — départ aéroport urgent", level:"⭐⭐⭐⭐", comps:["C1","C2","C3","C5"],
+    context:"Course immédiate vers aéroport — délai de recherche chauffeur. Gérer la mise en attente. Client qui PART = pas de pancarte. Heure de vol départ.",
+    maxScore:18, threshold:14,
+    courseCtx:"Emma Johnson veut un taxi immédiat pour l'aéroport. Problème : il faut chercher un chauffeur disponible. Gérer la mise en attente professionnellement : annoncer la mise en attente, donner une raison, donner un délai, régulièrement informer. Client qui PART = pas de pancarte. Demander heure de vol départ.",
     phrases:[
-      {fr:"Mise en attente professionnelle",en:"Please hold on for just one moment — I want to find the best driver for your 3 large suitcases."},
-      {fr:"Solution précise",en:"I found a driver. He will arrive in approximately 12 minutes with a large vehicle."},
-      {fr:"Merci de votre patience",en:"Thank you for your patience."},
-      {fr:"Point de RDV",en:"Please wait at the main entrance. Have a good flight!"},
+      {fr:"Mise en attente professionnelle",en:"Could you please hold on for a moment? I am checking driver availability for you.",pr:"koud you pliz hôld on for a môment"},
+      {fr:"Retour d'attente",en:"Thank you for holding. I have found a driver for you.",pr:"tank you for hôlding aï hav faound a draïver"},
+      {fr:"Heure de vol départ ?",en:"What time does your flight depart?",pr:"wot taïm daz yor flaït dipârt"},
     ],
     steps:[
-      {n:"1",title:"Q1 à Q5 + bagages",desc:"Collecter toutes les informations avant la mise en attente.",eg:"What is your pick-up address? ... Do you have any luggage?"},
-      {n:"2",title:"Mise en attente avec justification",desc:"Expliquer clairement pourquoi on met en attente.",eg:"Please hold on — with 3 large suitcases, I want to make sure you have the right vehicle."},
-      {n:"3",title:"Solution précise au retour",desc:"Délai exact + confirmation véhicule adapté.",eg:"Ms. Johnson, I found a driver. He will arrive in approximately 12 minutes with a large vehicle for your suitcases."},
-      {n:"4",title:"Point de RDV + clôture",desc:"Entrée principale + clôture adaptée.",eg:"Please wait at the main entrance. Thank you for your patience. Have a good flight!"},
+      {n:"1",title:"Mise en attente annoncée",desc:"Jamais mettre en attente sans prévenir et expliquer.",eg:"Could you please hold on for a moment? I am checking driver availability."},
+      {n:"2",title:"Collecte avant ou après attente",desc:"Collecter les infos clés. Heure de vol DÉPART (pas arrivée).",eg:"What time does your flight depart? We will make sure you have enough time."},
+      {n:"3",title:"Retour d'attente avec solution",desc:"Retour dans le délai annoncé avec une réponse concrète.",eg:"Thank you for holding. I have a driver available, he will be there in 6 minutes."},
+      {n:"4",title:"Pas de pancarte — client qui part",desc:"Ne jamais mentionner de pancarte pour un départ.",eg:""},
     ],
-    pitfalls:["Mettre en attente sans expliquer pourquoi — le client pense qu'on l'a oublié.","Revenir avec 'I don't know exactly' — toujours avoir un délai précis.","Oublier de confirmer que le véhicule est adapté aux 3 grosses valises."],
-    clientCard:"You are: Emma Johnson, Australian tourist in a hurry. Taxi NOW: 33 Rue de la République to Lyon Airport. 2 adults, 3 big suitcases. Phone: +61 400 999 777. In a hurry. If adviser puts you on hold with clear justification and comes back with precise answer: accept calmly. If vague: 'How long? I'm going to miss my flight!'",
-    systemPrompt:`You are Emma Johnson, Australian tourist in a hurry. Need immediate taxi from "33 Rue de la République, Lyon" to "Lyon Saint-Exupéry Airport". 2 adults, 3 big suitcases. Phone: "+61 400 999 777". In a hurry but reasonable. If adviser puts you on hold with clear professional justification AND comes back with precise answer (ETA + large vehicle confirmed): accept calmly. If vague or says "I don't know": say "How long exactly? I'm going to miss my flight!" Keep responses short.`,
+    pitfalls:["Mettre en attente sans prévenir ni expliquer.","Demander heure d'arrivée au lieu de départ du vol.","Proposer une pancarte — client qui PART, pas qui arrive.","Dépasser le délai annoncé sans rappeler le client."],
+    clientCard:"You are: Emma Johnson, Australian tourist. Urgent taxi to airport. From 33 Rue de la République. 2 adults, 3 suitcases. Flight departs 16:45. In a hurry.",
+    systemPrompt:`You are Emma Johnson, Australian tourist going to Lyon Saint-Exupéry Airport urgently. Pick-up from "33 Rue de la République, Lyon". 2 adults, 3 big suitcases. Phone: "+61 400 999 777". You are in a hurry but remain reasonable. Flight DEPARTS at 16:45 — only say this if adviser asks what time your flight departs or leaves, never for arrival. Do NOT expect any sign with your name — you are departing not arriving. If adviser puts you on hold: accept but after 30 seconds of waiting ask if there are any drivers available. If adviser returns with a driver: express relief. 1-2 sentences max.`,
     criteria:[
-      {label:"Q1 à Q5 + option bagages toutes posées",comp:"C1",max:3},
-      {label:"Mise en attente professionnelle avec justification claire",comp:"C3",max:3},
-      {label:"Délai précis (12 min) — pas vague",comp:"C2",max:3},
-      {label:"Confirmation véhicule adapté aux 3 grosses valises",comp:"C2",max:3},
-      {label:"Point de RDV précis (entrée principale)",comp:"C2",max:3},
-      {label:"Clôture avec gratitude + \"good flight\"",comp:"C5",max:3},
+      {label:"Mise en attente annoncée avec raison et délai",comp:"C3",max:3},
+      {label:"Heure de vol DÉPART demandée (pas arrivée)",comp:"C1",max:3},
+      {label:"Aucune mention pancarte (client qui part)",comp:"C1",max:3},
+      {label:"Retour attente dans le délai avec solution",comp:"C3",max:3},
+      {label:"Urgence gérée avec calme et efficacité",comp:"C3",max:3},
+      {label:"Clôture Have a good flight",comp:"C5",max:3},
     ],
   },
 ];
 
-const QCM_DATA = [
-  {q:"Comment dit-on 'Bonjour, je vous écoute' en anglais professionnel ?",opts:["Hello, I'm listening","Hello, [name] speaking, how can I help?","Good day, what do you want?","Hi, speak please"],c:1,ex:"La formule complète est : 'Hello, [prénom] speaking, how can I help?' — naturelle et accueillante."},
-  {q:"Comment demander l'adresse de départ ?",opts:["Where are you?","Tell me your street","What is your pick-up address?","Where do you come from?"],c:2,ex:"'Pick-up address' = adresse de prise en charge. C'est le terme professionnel."},
-  {q:"Comment demander poliment de patienter ?",opts:["Wait please","One moment please","Could you please hold on a moment?","Don't go"],c:2,ex:"'Could you please hold on a moment?' est la formule professionnelle de mise en attente."},
-  {q:"Un client dit 'Just me.' Combien de personnes ?",opts:["0","1","2","Inconnu"],c:1,ex:"'Just me' = juste moi = 1 personne."},
-  {q:"Comment dire 'Avez-vous des bagages ?' en anglais ?",opts:["Have you luggage?","Do you have any luggage?","Any bags?","Luggage?"],c:1,ex:"'Do you have any luggage?' est la formulation correcte et polie."},
-  {q:"Un client anglophone est impatient. Que faire en PREMIER ?",opts:["S'excuser longuement","Raccrocher","Rester calme et rassurer immédiatement","Transférer l'appel"],c:2,ex:"Toujours rester calme et rassurer avant de se justifier. Règle C3."},
-  {q:"Comment annoncer le délai d'arrivée du chauffeur ?",opts:["He comes soon","The driver will be there in X minutes","Your taxi is coming","In a moment"],c:1,ex:"Toujours donner un délai précis : 'The driver will be there in X minutes'."},
-  {q:"Pour un départ aéroport, quelle question supplémentaire poser ?",opts:["Avez-vous un visa ?","Votre heure de vol ?","Votre carte d'embarquement ?","Quelle compagnie ?"],c:1,ex:"Demander l'heure de vol permet de vérifier que l'horaire de prise en charge est cohérent."},
-  {q:"Un client dit 'I've just landed, I can't see my taxi.' Que dire en premier ?",opts:["Please wait","Can I have your name?","No problem — let me check for you","I'll call the driver"],c:2,ex:"'No problem' = réassurance immédiate. Puis identification. L'ordre est important !"},
-  {q:"Comment confirmer une réservation en anglais ?",opts:["OK, done","Your booking is confirmed","I note your reservation","It's registered"],c:1,ex:"'Your booking is confirmed' est la formule standard professionnelle."},
-  {q:"Que signifie 'pick-up address' ?",opts:["Adresse de destination","Adresse de prise en charge","Adresse de livraison","Adresse postale"],c:1,ex:"'Pick-up' = ramassage, prise en charge. C'est l'adresse de départ du client."},
-  {q:"Un client dit 'Two adults and one child, 5 years old.' Que vérifier ensuite ?",opts:["L'âge exact","Le siège enfant et les bagages","Le mode de paiement","Rien"],c:1,ex:"Enfant → question siège enfant + info légale (C2) + vérification bagages."},
-  {q:"Comment dire 'Je n'ai pas compris' en anglais professionnel ?",opts:["What?","I don't understand","I'm sorry, could you repeat that please?","Speak again"],c:2,ex:"'Could you repeat that please?' est poli et professionnel. Jamais 'What?'"},
-  {q:"À la clôture d'un appel pour un vol, quelle formule ?",opts:["Goodbye","See you","Have a good flight!","Good luck"],c:2,ex:"'Have a good flight!' est la clôture personnalisée pour un contexte aéroport — C5."},
-  {q:"Comment demander poliment le nom et le téléphone ?",opts:["Name and phone?","May I have your name and phone number?","Give me your details","What's your name?"],c:1,ex:"'May I have' est la formule polie professionnelle."},
-  {q:"Seuil de validation pour la majorité des simulations ?",opts:["50% soit 12/24","60% soit 14/24","70% soit 17/24","80% soit 19/24"],c:2,ex:"Le seuil est fixé à 70% minimum pour chaque simulation."},
-  {q:"Un client est perdu et ne connaît pas son adresse. Que demander ?",opts:["'What is your address?'","'Where are you?' et raccrocher","'Can you see any shops or restaurant names nearby?'","Lui dire de rappeler plus tard"],c:2,ex:"Technique de géolocalisation par repères visuels — compétence C2 avancée."},
-  {q:"Comment mettre un client en attente professionnellement ?",opts:["'Hold on'","'Please hold on for one moment while I [action précise]'","'Don't hang up'","'Wait a moment'"],c:1,ex:"Toujours expliquer pourquoi on met en attente — le client doit savoir ce qu'on fait."},
-  {q:"Comment dire 'Plus lentement SVP' en anglais ?",opts:["Speak slowly","More slow please","Could you speak more slowly, please?","Go slower"],c:2,ex:"'Could you speak more slowly, please?' — à utiliser sans hésiter si besoin."},
-  {q:"Quel est le module M7 du TAXITL CFA ?",opts:["Téléprospection","Anglais Relation Client","Gestion des conflits","Communication digitale"],c:1,ex:"Le Module M7 est entièrement dédié à l'Anglais Relation Client opérationnel."},
-];
+
 
 // ═══════════════════════════════════════════════════════
 // STATE
@@ -978,6 +912,8 @@ let currentScoreSimId = null;
 // UTILS
 // ═══════════════════════════════════════════════════════
 function showScreen(id){
+  if(id==='sim-select'){ setTimeout(()=>{ renderProgressBadges(); renderProgressOverview(); },50); }
+  if(id==='vocab'){ setTimeout(()=>{ window.speechSynthesis.getVoices(); },100); }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
@@ -1005,7 +941,7 @@ function doLogin(){
 
   if(!prenom || !nom){ showErr('Merci de saisir ton prénom et ton nom.'); return; }
   if(!date){ showErr('Merci de saisir la date de la session.'); return; }
-  if(code !== ACCESS_CODE){ showErr('Code d\'accès incorrect. Contacte ton formateur.'); return; }
+  if(code !== ACCESS_CODE){ showErr("Code d'accès incorrect. Contacte ton formateur."); return; }
   if(!rgpd1){ showErr('Tu dois accepter la politique de confidentialité pour accéder à la formation.'); return; }
 
   err.classList.remove('show');
@@ -1103,7 +1039,7 @@ function loadCourse(id){
     ${s.comps.map(c=>`<span class="course-badge cb-${c}">${c}</span>`).join('')}`;
   document.getElementById('course-ctx').textContent = s.courseCtx;
   document.getElementById('course-phrases').innerHTML = s.phrases.map((p,i)=>`
-    <div class="phrase-row" onclick="speakPhrase(this,'${p.en.replace(/'/g,"\'")}')" title="Cliquer pour écouter">
+    <div class="phrase-row" onclick="speakPhrase(this,'${p.en.replace(/'/g,"'")}')" title="Cliquer pour écouter">
       <button class="phrase-play-btn">🔊</button>
       <div class="phrase-fr">${p.fr}</div>
       <div><div class="phrase-en">${p.en}</div></div>
@@ -1364,6 +1300,279 @@ function speakPhrase(el, text){
 // Preload voices
 window.speechSynthesis.onvoiceschanged = ()=>{ window.speechSynthesis.getVoices(); };
 
+
+// ═══════════════════════════════════════════════════════════════════════
+// PROGRESSION — localStorage
+// ═══════════════════════════════════════════════════════════════════════
+const STORAGE_KEY = 'taxitl_m7_progress';
+
+function saveProgress(simId, score, maxScore){
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  const pct = Math.round(score/maxScore*100);
+  if(!data[simId] || pct > (data[simId].pct||0)){
+    data[simId] = {score, maxScore, pct, validated: pct >= 75, date: new Date().toLocaleDateString('fr-FR')};
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  renderProgressBadges();
+  renderProgressOverview();
+}
+
+function loadProgress(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+}
+
+function renderProgressBadges(){
+  const data = loadProgress();
+  document.querySelectorAll('.sim-card').forEach(card => {
+    const id = parseInt(card.getAttribute('data-sim-id'));
+    const existing = card.querySelector('.sim-card-badge');
+    if(existing) existing.remove();
+    if(data[id]){
+      const badge = document.createElement('div');
+      badge.className = 'sim-card-badge' + (data[id].pct >= 95 ? ' expert' : '');
+      badge.textContent = data[id].pct >= 95 ? '🏆 Expert' : `✅ ${data[id].pct}%`;
+      card.appendChild(badge);
+    }
+  });
+}
+
+function renderProgressOverview(){
+  const el = document.getElementById('progress-overview');
+  if(!el) return;
+  const data = loadProgress();
+  const validated = Object.values(data).filter(d=>d.validated).length;
+  const total = SIMS.length;
+  const pct = Math.round(validated/total*100);
+  el.innerHTML = `
+    <h4>🎯 Ma progression globale</h4>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text"><span>${validated}/${total} simulations validées</span><span>${pct}%</span></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// VOCAB — speakVocab with visual feedback
+// ═══════════════════════════════════════════════════════════════════════
+function speakVocab(idx, text, btn){
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.vplay-btn').forEach(b=>b.classList.remove('playing'));
+  btn.classList.add('playing');
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB'; utt.rate = 0.85; utt.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const enV = voices.find(v=>v.lang==='en-GB') || voices.find(v=>v.lang.startsWith('en')) || null;
+  if(enV) utt.voice = enV;
+  utt.onend = ()=>btn.classList.remove('playing');
+  utt.onerror = ()=>btn.classList.remove('playing');
+  window.speechSynthesis.speak(utt);
+}
+
+function flashReveal(idx){
+  const card = document.getElementById('vcard-'+idx);
+  if(!card) return;
+  if(!card.classList.contains('flash-mode')){
+    card.classList.add('flash-mode');
+    card.querySelector('.vflash-btn').textContent = '👁 Révéler la réponse';
+  } else if(!card.classList.contains('revealed')){
+    card.classList.add('revealed');
+    card.querySelector('.vflash-btn').textContent = '🔄 Masquer';
+    // auto-speak
+    const en = card.querySelector('.ven').textContent;
+    const btn = card.querySelector('.vplay-btn');
+    speakVocab(idx, en, btn);
+  } else {
+    card.classList.remove('flash-mode','revealed');
+    card.querySelector('.vflash-btn').textContent = '👁 Mode flashcard';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// QUIZ — randomized options + 18/20 threshold + wrong-only retry
+// ═══════════════════════════════════════════════════════════════════════
+let quizData = [];
+let quizAnswers = [];
+let quizWrongIndexes = [];
+let quizRetryMode = false;
+
+const QUIZ = [
+  {q:"Un client anglophone arrive à l'aéroport et cherche son chauffeur. Que proposez-vous ?",opts:["Lui demander de patienter dans le hall principal","Envoyer un chauffeur avec une pancarte à son nom à la sortie arrivées","Lui donner le numéro du chauffeur directement","Lui demander de rappeler dans 10 minutes"],c:1,ex:"Pour un client qui ARRIVE, on propose toujours un chauffeur avec une pancarte à son nom à la sortie arrivées. La pancarte s'applique uniquement aux arrivées, jamais aux départs."},
+  {q:"Un client part à l'aéroport. Quelle question est obligatoire concernant son vol ?",opts:["Son numéro de passeport","L'heure à laquelle son vol atterrit","L'heure à laquelle son vol décolle","Son numéro de siège"],c:2,ex:"Pour un départ aéroport, on demande l'heure de vol départ. On ne demande JAMAIS l'heure d'arrivée pour un client qui part. La pancarte n'est jamais proposée pour un départ."},
+  {q:"Comment demander l'heure d'arrivée du train d'un client qui arrive en gare ?",opts:["What time does your train leave?","What time does your train arrive?","When is your train scheduled?","What time is your train departure?"],c:1,ex:"Pour une arrivée : What time does your train arrive? Pour un départ : What time does your train leave? La distinction est essentielle pour le service client."},
+  {q:"Un client dit 'I'm arriving at Part-Dieu at 18:15'. Que proposez-vous spontanément ?",opts:["Un taxi au prix habituel","Un chauffeur avec une pancarte à son nom à la sortie","De rappeler à 18h00","De lui envoyer un SMS"],c:1,ex:"Pour toute arrivée en gare ou aéroport, on propose systématiquement un chauffeur avec pancarte. C'est le standard professionnel TAXITL."},
+  {q:"Comment dire correctement l'heure de départ d'un vol en anglais ?",opts:["What time does your flight arrive?","What time did your flight leave?","What time does your flight depart?","When is your landing?"],c:2,ex:"What time does your flight depart? = heure de départ. What time does your flight arrive? = heure d'arrivée. Toujours adapter à la situation du client."},
+  {q:"Un client dit 'Two adults and one child, 4 years old'. Quelle est la PREMIÈRE réaction ?",opts:["Confirmer le prix","Demander si un siège enfant est nécessaire et informer sur l'obligation légale","Demander le nombre de bagages","Confirmer la destination"],c:1,ex:"Enfant mentionné = siège enfant en priorité (C2). Obligation légale en France pour les enfants de moins de 10 ans. Toujours informer le client proactivement."},
+  {q:"Comment annoncer un délai d'attente de 8 minutes de façon professionnelle ?",opts:["The driver is coming soon","The driver will be there in approximately 8 minutes","We are sending someone right now","Your taxi is almost there"],c:1,ex:"Toujours donner un délai précis et concret. Jamais de formule vague comme 'soon' ou 'almost there'. Le client a besoin de savoir exactement combien de temps attendre."},
+  {q:"Un client est mécontent car son taxi est en retard. Quelle est la séquence correcte ?",opts:["Expliquer la raison du retard en premier","S'excuser immédiatement puis identifier la course puis donner un nouveau délai précis","Transférer l'appel à un responsable","Donner le numéro du chauffeur directement"],c:1,ex:"Séquence C3 : réassurance + excuse EN PREMIER, puis identification de la course, puis nouveau délai précis. L'excuse seule sans solution concrète ne suffit pas."},
+  {q:"Comment demander l'adresse de départ en anglais professionnel ?",opts:["Where are you right now?","What's your current address?","What is your pick-up address, please?","From where exactly?"],c:2,ex:"What is your pick-up address, please? est la formulation professionnelle standard. Pick-up = prise en charge. Toujours ajouter 'please' pour maintenir le niveau de service."},
+  {q:"Un client perdu ne connaît pas son adresse. Quelle technique utiliser ?",opts:["Lui dire de rappeler quand il saura son adresse","Lui demander des repères visuels : enseignes, monuments, noms de rues","Lui envoyer un SMS avec un lien de localisation","Lui demander d'ouvrir Google Maps lui-même"],c:1,ex:"Technique de géolocalisation par repères visuels (C2) : Can you see any shop signs, street names, or landmarks near you? Proactif et efficace même si le client ne connaît pas l'adresse."},
+  {q:"Comment confirmer une réservation de manière professionnelle ?",opts:["OK, it's done, goodbye","Your booking is confirmed. The driver will be there in X minutes","We will send someone, no worries","Consider it confirmed, have a good day"],c:1,ex:"Your booking is confirmed + délai précis = confirmation professionnelle complète. Le client doit repartir avec deux informations clés : confirmation + délai exact."},
+  {q:"Un client dit 'Could you speak more slowly please?' Que faites-vous ?",opts:["Parler plus fort pour être mieux compris","Répéter exactement la même phrase mais plus lentement en articulant clairement","Dire Sorry et continuer normalement","Transférer immédiatement l'appel"],c:1,ex:"Of course! puis ralentir le débit et articuler clairement avec des phrases courtes. La compréhension du client est prioritaire sur la rapidité."},
+  {q:"Quelle formule de clôture pour un client qui part en avion ?",opts:["Goodbye, thank you for calling","Have a good flight! Safe travels!","See you soon, take care","Thank you, bye bye"],c:1,ex:"Have a good flight! ou Safe travels! sont les clôtures personnalisées adaptées à un départ en avion. Elles valorisent la relation et distinguent TAXITL d'un simple service."},
+  {q:"Un client arrive à l'aéroport et demande si le chauffeur aura une pancarte. Que répondre ?",opts:["Je ne sais pas, veuillez attendre","Yes, the driver will be waiting with a sign with your name at the arrivals exit","Non, seulement pour les clients VIP","Yes but only if you requested it online"],c:1,ex:"Pour toute arrivée, le chauffeur attend avec une pancarte au nom du passager. Confirmer clairement avec la localisation précise : at the arrivals exit."},
+  {q:"Que signifie 'pick-up address' dans le contexte taxi ?",opts:["Adresse de destination finale","Adresse de prise en charge / point de départ","Numéro de réservation","Heure d'arrivée estimée"],c:1,ex:"Pick-up = prise en charge = adresse où le chauffeur vient chercher le client. Terme standard international en relation client taxi et VTC."},
+  {q:"Un client dit 'I left my wallet in the taxi'. Quelle est votre PREMIÈRE action ?",opts:["Lui dire que TAXITL n'est pas responsable des objets oubliés","Le rassurer puis identifier la course par heure et trajet pour retrouver le chauffeur","Lui donner le numéro de la police","Lui demander de remplir un formulaire en ligne"],c:1,ex:"Urgence client : réassurer EN PREMIER (Don't worry, we will help you), puis identifier la course. La solution humaine avant la procédure administrative."},
+  {q:"Comment demander poliment à un client d'épeler son nom ?",opts:["Spell it please","Could you please spell your name for me?","What is your name again?","Can you write it down?"],c:1,ex:"Could you please spell your name for me? est la formule polie et professionnelle. Toujours utiliser please et une formule complète."},
+  {q:"Un client dit 'I need a taxi NOW, it's urgent'. Que faire en premier ?",opts:["Expliquer qu'on ne peut rien garantir en urgence","Répondre Of course! et immédiatement demander l'adresse de départ","Lui demander de rappeler dans 5 minutes","Demander pourquoi c'est urgent"],c:1,ex:"Of course! + prise d'information immédiate = efficacité et réassurance combinées. Ne jamais créer de délai administratif face à une urgence client."},
+  {q:"Pourquoi demander l'heure de vol pour un départ aéroport ?",opts:["Pour facturer un supplément aéroport","Pour vérifier que l'heure de prise en charge est cohérente avec l'heure du vol","Pour l'enregistrer dans le CRM uniquement","Ce n'est pas nécessaire pour une course aéroport"],c:1,ex:"Vérification de cohérence horaire (C2) : si le vol est à 8h et le client veut le taxi à 7h45, c'est insuffisant. Le conseiller doit alerter et proposer un horaire adapté."},
+  {q:"Comment se présenter correctement en décrochant le téléphone chez TAXITL ?",opts:["Oui, bonjour?","TAXITL, parlez","Hello, [prénom] speaking, how can I help you?","What do you want please?"],c:2,ex:"Hello, [prénom] speaking, how can I help you? est la formule obligatoire TAXITL : salutation + identification + offre de service. Complète et professionnelle."}
+];
+
+
+function shuffleQuiz(){
+  // Shuffle question order and randomize option positions
+  const shuffled = [...QUIZ].sort(()=>Math.random()-0.5).slice(0,20);
+  quizData = shuffled.map(q => {
+    // Create shuffled options with tracking of correct answer
+    const opts = q.opts.map((o,i)=>({text:o, isCorrect: i===q.c}));
+    const shuffledOpts = opts.sort(()=>Math.random()-0.5);
+    const newCorrect = shuffledOpts.findIndex(o=>o.isCorrect);
+    return {...q, opts: shuffledOpts.map(o=>o.text), c: newCorrect};
+  });
+  quizAnswers = new Array(quizData.length).fill(null);
+}
+
+function startQuiz(retryWrongOnly=false){
+  if(!retryWrongOnly){
+    shuffleQuiz();
+    quizWrongIndexes = [];
+    quizRetryMode = false;
+  } else {
+    // Only wrong questions
+    quizData = quizWrongIndexes.map(i=>quizData[i]);
+    quizAnswers = new Array(quizData.length).fill(null);
+    quizWrongIndexes = [];
+    quizRetryMode = true;
+  }
+  renderQuiz();
+  showScreen('quiz');
+}
+
+function renderQuiz(){
+  const container = document.getElementById('quiz-questions');
+  if(!container) return;
+  container.innerHTML = quizData.map((q,i)=>`
+    <div class="quiz-q" id="qq-${i}">
+      <div class="quiz-q-num">Question ${i+1} / ${quizData.length}</div>
+      <div class="quiz-q-text">${q.q}</div>
+      <div class="quiz-opts" id="qopts-${i}">
+        ${q.opts.map((o,j)=>`<button class="qopt" onclick="selectQuizOpt(${i},${j})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${i}" style="display:none"></div>
+    </div>
+  `).join('');
+  document.getElementById('quiz-submit')?.remove();
+  const btn = document.createElement('button');
+  btn.className='btn btn-full'; btn.style.marginTop='20px';
+  btn.textContent = '✅ Valider mes réponses';
+  btn.onclick = submitQuiz;
+  btn.id = 'quiz-submit';
+  container.appendChild(btn);
+}
+
+function selectQuizOpt(qi, oi){
+  quizAnswers[qi] = oi;
+  const opts = document.querySelectorAll(`#qopts-${qi} .qopt`);
+  opts.forEach((o,j)=>{
+    o.classList.toggle('selected', j===oi);
+  });
+}
+
+function submitQuiz(){
+  let correct = 0;
+  quizWrongIndexes = [];
+  quizData.forEach((q,i)=>{
+    const chosen = quizAnswers[i];
+    const opts = document.querySelectorAll(`#qopts-${i} .qopt`);
+    const fb = document.getElementById('qfb-'+i);
+    opts.forEach(o=>o.disabled=true);
+    if(chosen === null){
+      fb.style.display='block';
+      fb.className='quiz-feedback qfb-miss';
+      fb.innerHTML = `⚠️ Non répondu — Bonne réponse : <strong>${q.opts[q.c]}</strong>`;
+      quizWrongIndexes.push(i);
+    } else if(chosen === q.c){
+      opts[chosen].classList.add('correct');
+      fb.style.display='block';
+      fb.className='quiz-feedback qfb correct';
+      fb.innerHTML = `✅ ${q.ex}`;
+      correct++;
+    } else {
+      opts[chosen].classList.add('wrong');
+      opts[q.c].classList.add('correct');
+      fb.style.display='block';
+      fb.className='quiz-feedback qfb';
+      fb.innerHTML = `❌ Bonne réponse : <strong>${q.opts[q.c]}</strong><br><span style="font-size:12px;color:var(--muted)">${q.ex}</span>`;
+      quizWrongIndexes.push(i);
+    }
+  });
+  
+  const total = quizData.length;
+  const pct = Math.round(correct/total*100);
+  const validated = correct >= 18;
+  
+  // Show result panel
+  const resultHtml = `
+    <div class="quiz-score-detail" style="margin-top:24px">
+      <h4>Résultat</h4>
+      <div style="font-size:28px;font-weight:700;margin-bottom:8px" class="${validated?'quiz-pass':'quiz-fail'}">
+        ${correct}/${total} ${validated?'✅ Validé !':'— Pas encore validé'}
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">
+        ${validated 
+          ? '🏆 Excellent ! Tu maîtrises le vocabulaire professionnel anglais CRCD.' 
+          : `Il te faut 18/${total} pour valider. Tu en es à ${correct}. ${quizWrongIndexes.length} question(s) à retravailler.`}
+      </div>
+      ${!validated && quizWrongIndexes.length > 0 ? `<button class="btn btn-outline btn-sm" onclick="startQuiz(true)">🔁 Reprendre uniquement les ${quizWrongIndexes.length} question(s) ratée(s)</button>` : ''}
+      <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="startQuiz(false)">🔄 Recommencer tout le quiz</button>
+      <button class="btn btn-sm" style="margin-top:8px;margin-left:8px" onclick="showScreen('home')">🏠 Accueil</button>
+    </div>`;
+  
+  document.getElementById('quiz-submit').outerHTML = resultHtml;
+  window.scrollTo(0,document.body.scrollHeight);
+}
+
+// ═══════════════════════════════════════════════════════════════════════  
+// SIM RESULT — detailed by competency
+// ═══════════════════════════════════════════════════════════════════════
+function renderDetailedResult(s, evalData){
+  // Group criteria by competency
+  const byComp = {};
+  s.criteria.forEach(c=>{
+    if(!byComp[c.comp]) byComp[c.comp]=[];
+    byComp[c.comp].push(c);
+  });
+  
+  const compDescriptions = {
+    C1:"Accueil & renseignement client", C2:"Accompagnement & conseil proactif",
+    C3:"Gestion situations difficiles", C4:"Téléprospection & vente", C5:"Fidélisation"
+  };
+  
+  const compTips = {
+    C1:"Travaille la formule d'accueil complète et la collecte systématique des 5 infos.",
+    C2:"Anticipe les besoins : siège enfant, délai, cohérence horaire vol/taxi.",
+    C3:"Réassure AVANT d'expliquer. Toujours donner un délai précis.",
+    C4:"Structure ton script : accroche → bénéfice → qualification → clôture.",
+    C5:"Personnalise la clôture selon le contexte : 'Have a good flight!'."
+  };
+  
+  return Object.entries(byComp).map(([comp, crits])=>{
+    const maxC = crits.reduce((a,c)=>a+(c.max||3),0);
+    const scoreC = evalData[comp] || 0;
+    const pct = Math.min(100, Math.round(scoreC/maxC*100));
+    const color = pct>=80?'var(--green)':pct>=50?'var(--accent)':'var(--red)';
+    return `<div class="crit-row">
+      <div style="flex:1">
+        <div class="crit-label"><strong>${comp}</strong> — ${compDescriptions[comp]||''}</div>
+        ${pct < 80 ? `<div class="crit-tip">💡 ${compTips[comp]||''}</div>` : ''}
+      </div>
+      <div>
+        <div class="crit-score" style="color:${color}">${scoreC}/${maxC}</div>
+        <div class="crit-bar"><div class="crit-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function speakText(txt){
   if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -1558,7 +1767,7 @@ function showProgress(){
   const st=document.getElementById('sc-status');
   st.textContent=done>=8?'✅ Module M7 Validé !':` ${10-done} simulation(s) restante(s)`;
   st.className=`score-status ${done>=8?'ss-ok':'ss-ko'}`;
-  document.getElementById('sc-fb').textContent=Object.keys(simResults).length===0?'Aucune simulation réalisée pour l\'instant.':
+  document.getElementById('sc-fb').textContent=Object.keys(simResults).length===0?"Aucune simulation réalisée pour l'instant.":
     Object.entries(simResults).map(([id,r])=>{const s=SIMS.find(x=>x.id==id); return `S${id} ${s?.title}: ${r.score}/${s?.maxScore} ${r.validated?'✅':'↺'}`;}).join(' • ');
   document.getElementById('sc-breakdown').innerHTML='';
   currentScoreSimId=null;
