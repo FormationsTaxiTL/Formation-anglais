@@ -1395,27 +1395,28 @@ let quizWrongIndexes = [];
 let quizRetryMode = false;
 
 const QUIZ = [
-  {q:"Un client anglophone arrive à l'aéroport et cherche son chauffeur. Que proposez-vous ?",opts:["Lui demander de patienter dans le hall principal","Envoyer un chauffeur avec une pancarte à son nom à la sortie arrivées","Lui donner le numéro du chauffeur directement","Lui demander de rappeler dans 10 minutes"],c:1,ex:"Pour un client qui ARRIVE, on propose toujours un chauffeur avec une pancarte à son nom à la sortie arrivées. La pancarte s'applique uniquement aux arrivées, jamais aux départs."},
-  {q:"Un client part à l'aéroport. Quelle question est obligatoire concernant son vol ?",opts:["Son numéro de passeport","L'heure à laquelle son vol atterrit","L'heure à laquelle son vol décolle","Son numéro de siège"],c:2,ex:"Pour un départ aéroport, on demande l'heure de vol départ. On ne demande JAMAIS l'heure d'arrivée pour un client qui part. La pancarte n'est jamais proposée pour un départ."},
-  {q:"Comment demander l'heure d'arrivée du train d'un client qui arrive en gare ?",opts:["What time does your train leave?","What time does your train arrive?","When is your train scheduled?","What time is your train departure?"],c:1,ex:"Pour une arrivée : What time does your train arrive? Pour un départ : What time does your train leave? La distinction est essentielle pour le service client."},
-  {q:"Un client dit 'I'm arriving at Part-Dieu at 18:15'. Que proposez-vous spontanément ?",opts:["Un taxi au prix habituel","Un chauffeur avec une pancarte à son nom à la sortie","De rappeler à 18h00","De lui envoyer un SMS"],c:1,ex:"Pour toute arrivée en gare ou aéroport, on propose systématiquement un chauffeur avec pancarte. C'est le standard professionnel TAXITL."},
-  {q:"Comment dire correctement l'heure de départ d'un vol en anglais ?",opts:["What time does your flight arrive?","What time did your flight leave?","What time does your flight depart?","When is your landing?"],c:2,ex:"What time does your flight depart? = heure de départ. What time does your flight arrive? = heure d'arrivée. Toujours adapter à la situation du client."},
-  {q:"Un client dit 'Two adults and one child, 4 years old'. Quelle est la PREMIÈRE réaction ?",opts:["Confirmer le prix","Demander si un siège enfant est nécessaire et informer sur l'obligation légale","Demander le nombre de bagages","Confirmer la destination"],c:1,ex:"Enfant mentionné = siège enfant en priorité (C2). Obligation légale en France pour les enfants de moins de 10 ans. Toujours informer le client proactivement."},
-  {q:"Comment annoncer un délai d'attente de 8 minutes de façon professionnelle ?",opts:["The driver is coming soon","The driver will be there in approximately 8 minutes","We are sending someone right now","Your taxi is almost there"],c:1,ex:"Toujours donner un délai précis et concret. Jamais de formule vague comme 'soon' ou 'almost there'. Le client a besoin de savoir exactement combien de temps attendre."},
-  {q:"Un client est mécontent car son taxi est en retard. Quelle est la séquence correcte ?",opts:["Expliquer la raison du retard en premier","S'excuser immédiatement puis identifier la course puis donner un nouveau délai précis","Transférer l'appel à un responsable","Donner le numéro du chauffeur directement"],c:1,ex:"Séquence C3 : réassurance + excuse EN PREMIER, puis identification de la course, puis nouveau délai précis. L'excuse seule sans solution concrète ne suffit pas."},
-  {q:"Comment demander l'adresse de départ en anglais professionnel ?",opts:["Where are you right now?","What's your current address?","What is your pick-up address, please?","From where exactly?"],c:2,ex:"What is your pick-up address, please? est la formulation professionnelle standard. Pick-up = prise en charge. Toujours ajouter 'please' pour maintenir le niveau de service."},
-  {q:"Un client perdu ne connaît pas son adresse. Quelle technique utiliser ?",opts:["Lui dire de rappeler quand il saura son adresse","Lui demander des repères visuels : enseignes, monuments, noms de rues","Lui envoyer un SMS avec un lien de localisation","Lui demander d'ouvrir Google Maps lui-même"],c:1,ex:"Technique de géolocalisation par repères visuels (C2) : Can you see any shop signs, street names, or landmarks near you? Proactif et efficace même si le client ne connaît pas l'adresse."},
-  {q:"Comment confirmer une réservation de manière professionnelle ?",opts:["OK, it's done, goodbye","Your booking is confirmed. The driver will be there in X minutes","We will send someone, no worries","Consider it confirmed, have a good day"],c:1,ex:"Your booking is confirmed + délai précis = confirmation professionnelle complète. Le client doit repartir avec deux informations clés : confirmation + délai exact."},
-  {q:"Un client dit 'Could you speak more slowly please?' Que faites-vous ?",opts:["Parler plus fort pour être mieux compris","Répéter exactement la même phrase mais plus lentement en articulant clairement","Dire Sorry et continuer normalement","Transférer immédiatement l'appel"],c:1,ex:"Of course! puis ralentir le débit et articuler clairement avec des phrases courtes. La compréhension du client est prioritaire sur la rapidité."},
-  {q:"Quelle formule de clôture pour un client qui part en avion ?",opts:["Goodbye, thank you for calling","Have a good flight! Safe travels!","See you soon, take care","Thank you, bye bye"],c:1,ex:"Have a good flight! ou Safe travels! sont les clôtures personnalisées adaptées à un départ en avion. Elles valorisent la relation et distinguent TAXITL d'un simple service."},
-  {q:"Un client arrive à l'aéroport et demande si le chauffeur aura une pancarte. Que répondre ?",opts:["Je ne sais pas, veuillez attendre","Yes, the driver will be waiting with a sign with your name at the arrivals exit","Non, seulement pour les clients VIP","Yes but only if you requested it online"],c:1,ex:"Pour toute arrivée, le chauffeur attend avec une pancarte au nom du passager. Confirmer clairement avec la localisation précise : at the arrivals exit."},
-  {q:"Que signifie 'pick-up address' dans le contexte taxi ?",opts:["Adresse de destination finale","Adresse de prise en charge / point de départ","Numéro de réservation","Heure d'arrivée estimée"],c:1,ex:"Pick-up = prise en charge = adresse où le chauffeur vient chercher le client. Terme standard international en relation client taxi et VTC."},
-  {q:"Un client dit 'I left my wallet in the taxi'. Quelle est votre PREMIÈRE action ?",opts:["Lui dire que TAXITL n'est pas responsable des objets oubliés","Le rassurer puis identifier la course par heure et trajet pour retrouver le chauffeur","Lui donner le numéro de la police","Lui demander de remplir un formulaire en ligne"],c:1,ex:"Urgence client : réassurer EN PREMIER (Don't worry, we will help you), puis identifier la course. La solution humaine avant la procédure administrative."},
-  {q:"Comment demander poliment à un client d'épeler son nom ?",opts:["Spell it please","Could you please spell your name for me?","What is your name again?","Can you write it down?"],c:1,ex:"Could you please spell your name for me? est la formule polie et professionnelle. Toujours utiliser please et une formule complète."},
-  {q:"Un client dit 'I need a taxi NOW, it's urgent'. Que faire en premier ?",opts:["Expliquer qu'on ne peut rien garantir en urgence","Répondre Of course! et immédiatement demander l'adresse de départ","Lui demander de rappeler dans 5 minutes","Demander pourquoi c'est urgent"],c:1,ex:"Of course! + prise d'information immédiate = efficacité et réassurance combinées. Ne jamais créer de délai administratif face à une urgence client."},
-  {q:"Pourquoi demander l'heure de vol pour un départ aéroport ?",opts:["Pour facturer un supplément aéroport","Pour vérifier que l'heure de prise en charge est cohérente avec l'heure du vol","Pour l'enregistrer dans le CRM uniquement","Ce n'est pas nécessaire pour une course aéroport"],c:1,ex:"Vérification de cohérence horaire (C2) : si le vol est à 8h et le client veut le taxi à 7h45, c'est insuffisant. Le conseiller doit alerter et proposer un horaire adapté."},
-  {q:"Comment se présenter correctement en décrochant le téléphone chez TAXITL ?",opts:["Oui, bonjour?","TAXITL, parlez","Hello, [prénom] speaking, how can I help you?","What do you want please?"],c:2,ex:"Hello, [prénom] speaking, how can I help you? est la formule obligatoire TAXITL : salutation + identification + offre de service. Complète et professionnelle."}
+  {q:"Comment dit-on 'Bonjour, [prénom] je vous écoute' en anglais professionnel ?",opts:["Yes, hello?","Hello, [name] speaking, how can I help you?","Good morning, what do you want?","TAXITL, speak please"],c:1,ex:"'Hello, [name] speaking, how can I help you?' est la formule complète obligatoire : salutation + identification + offre de service."},
+  {q:"Un client dit 'I'd like to book a taxi.' Quelle est votre PREMIÈRE réponse ?",opts:["How much do you want to pay?","Of course! What is your pick-up address, please?","Where do you live?","When do you want it?"],c:1,ex:"Of course! + première question = accueil positif + démarrage de la collecte d'informations. On commence TOUJOURS par l'adresse de départ."},
+  {q:"Comment demander l'adresse de départ en anglais ?",opts:["Where are you?","What is your pick-up address, please?","Give me your address","From where?"],c:1,ex:"'What is your pick-up address, please?' est la formule professionnelle. 'Pick-up' = prise en charge. Toujours ajouter 'please'."},
+  {q:"Un client dit 'Just me, no luggage'. Que comprenez-vous ?",opts:["1 personne, pas de bagage","2 personnes, pas de bagage","1 personne, 1 bagage","Il ne sait pas combien de bagages il a"],c:0,ex:"'Just me' = juste moi = 1 personne. 'No luggage' = pas de bagage. Compréhension directe, aucune ambiguïté."},
+  {q:"Comment dire 'Pouvez-vous patienter un instant ?' en anglais professionnel ?",opts:["Wait a minute!","Could you please hold on for a moment?","Don't go anywhere","Stay on the line, ok?"],c:1,ex:"'Could you please hold on for a moment?' est la formule polie et professionnelle. Toujours expliquer pourquoi on met en attente juste après."},
+  {q:"Un client impatient dit 'WHERE IS MY TAXI?!' Que répondez-vous en premier ?",opts:["I understand your frustration. Let me check right away.","The driver is busy.","Call back later please.","I don't know where he is."],c:0,ex:"Réassurance immédiate EN PREMIER : 'I understand' + action immédiate. Jamais se justifier ni donner une réponse négative en premier."},
+  {q:"Comment confirmer une réservation en anglais ?",opts:["It's done, bye","Your booking is confirmed. The driver will be there in 8 minutes.","OK noted","We got it"],c:1,ex:"'Your booking is confirmed' + délai précis = confirmation professionnelle complète. Le client repart avec deux informations : confirmation + délai exact."},
+  {q:"Un client dit 'Could you speak more slowly please?' Que faites-vous ?",opts:["Je parle plus fort","Je répète plus lentement en articulant : 'Of course! [phrase répétée lentement]'","Je passe l'appel à un collègue","Je m'excuse et je raccroche"],c:1,ex:"'Of course!' puis ralentir et articuler. La compréhension du client est prioritaire. Ne jamais passer la main pour cette raison."},
+  {q:"Comment dire 'Avez-vous des bagages ?' en anglais ?",opts:["Do you have bags?","Do you have any luggage, please?","Luggage?","How many bags you have?"],c:1,ex:"'Do you have any luggage, please?' est la formule complète et polie. 'Luggage' = bagages (indénombrable). Toujours ajouter 'please'."},
+  {q:"Un client dit 'Two adults and one child, she's 3 years old.' Que vérifiez-vous ensuite ?",opts:["Le prix de la course","Si un siège enfant est nécessaire","Le nombre de bagages en premier","L'adresse de destination"],c:1,ex:"Enfant mentionné = siège enfant en priorité ! En France, c'est une obligation légale pour les enfants de moins de 10 ans. C'est le critère C2 le plus important."},
+  {q:"Comment annoncer que le chauffeur arrive dans 5 minutes ?",opts:["He comes soon","The driver will be there in 5 minutes","5 minutes, ok?","Your taxi is almost here"],c:1,ex:"'The driver will be there in 5 minutes' est la formule précise et professionnelle. 'Soon' ou 'almost here' sont trop vagues — toujours donner un chiffre exact."},
+  {q:"Un client dit 'I've just landed, I can't find my driver.' Que répondez-vous ?",opts:["Please wait, I'll call you back","No problem! Where are you exactly? Which exit are you at?","The driver is on his way","Maybe you're at the wrong terminal"],c:1,ex:"'No problem!' = réassurance immédiate, puis géolocalisation (quel terminal, quelle sortie). Ne jamais commencer par une excuse ou une information négative."},
+  {q:"Comment demander poliment le nom d'un client ?",opts:["Your name?","What's your name?","May I have your name, please?","Name please!"],c:2,ex:"'May I have your name, please?' est la formule la plus professionnelle. 'May I have' exprime la politesse maximale en anglais professionnel."},
+  {q:"Un client dit 'My flight is at 9h30.' Quelle information manque pour vérifier la cohérence ?",opts:["Son numéro de vol","L'heure de prise en charge souhaitée pour vérifier qu'elle est suffisamment tôt","Sa carte d'embarquement","Son terminal de départ"],c:1,ex:"Il faut vérifier que l'heure de prise en charge est cohérente avec l'heure du vol. Si le vol est à 9h30 et le client veut le taxi à 9h00, c'est insuffisant."},
+  {q:"Comment dire 'Je suis désolé pour ce désagrément' ?",opts:["Too bad for you","I'm very sorry for the inconvenience","Sorry sorry sorry","My apologies, it's not our fault"],c:1,ex:"'I'm very sorry for the inconvenience' est la formule professionnelle standard. Courte, directe, sincère. Ne jamais se justifier dans la même phrase."},
+  {q:"Un client dit 'Could you spell that?' Que signifie cette phrase ?",opts:["Pouvez-vous parler plus fort ?","Pouvez-vous épeler cela ?","Pouvez-vous répéter ?","Pouvez-vous écrire ça ?"],c:1,ex:"'Could you spell that?' = pouvez-vous épeler ? Le client demande à entendre les lettres une par une. Répondre : 'Of course! It's T-A-X-I-T-L...'"},
+  {q:"Comment terminer un appel pour un client qui part en voyage ?",opts:["Goodbye","Have a good trip! / Have a good flight! / Safe journey!","See you soon","Thank you, that's all"],c:1,ex:"La clôture personnalisée selon le contexte : 'Have a good flight!' pour un avion, 'Have a good trip!' en général. C'est ce qui différencie un service exceptionnel d'un service ordinaire."},
+  {q:"Un client dit 'I'm completely lost, I don't know where I am.' Que demandez-vous ?",opts:["Appelez le 15","Can you see any shop signs, street names, or landmarks near you?","Je ne peux pas vous aider sans adresse","Demandez à quelqu'un dans la rue"],c:1,ex:"Technique de géolocalisation par repères visuels : 'Can you see any shop signs, street names, or landmarks near you?' Proactif et efficace même sans adresse."},
+  {q:"Comment dire 'Votre réservation est confirmée' en anglais ?",opts:["It's OK","Your booking is confirmed","We have you","Done, confirmed"],c:1,ex:"'Your booking is confirmed' est la formule standard professionnelle. Claire, directe, rassurante pour le client."},
+  {q:"Un client dit 'Is that correct?' après que vous avez reformulé sa réservation. Que signifie cette phrase ?",opts:["Il veut changer sa réservation","Il demande si ce que vous avez récapitulé est exact","Il n'a pas compris","Il veut parler à un supérieur"],c:1,ex:"'Is that correct?' = est-ce exact ? Le client vérifie que vous avez bien compris tous les détails. Répondre : 'Yes, that's correct!' si tout est bon, ou corriger si nécessaire."}
 ];
+
 
 
 function shuffleQuiz(){
@@ -1444,7 +1445,7 @@ function startQuiz(retryWrongOnly=false){
     quizRetryMode = true;
   }
   renderQuiz();
-  showScreen('quiz');
+  startQCM();
 }
 
 function renderQuiz(){
@@ -1522,8 +1523,8 @@ function submitQuiz(){
           ? '🏆 Excellent ! Tu maîtrises le vocabulaire professionnel anglais CRCD.' 
           : `Il te faut 18/${total} pour valider. Tu en es à ${correct}. ${quizWrongIndexes.length} question(s) à retravailler.`}
       </div>
-      ${!validated && quizWrongIndexes.length > 0 ? `<button class="btn btn-outline btn-sm" onclick="startQuiz(true)">🔁 Reprendre uniquement les ${quizWrongIndexes.length} question(s) ratée(s)</button>` : ''}
-      <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="startQuiz(false)">🔄 Recommencer tout le quiz</button>
+      ${!validated && quizWrongIndexes.length > 0 ? `<button class="btn btn-outline btn-sm" onclick="startQCM()">🔁 Reprendre uniquement les ${quizWrongIndexes.length} question(s) ratée(s)</button>` : ''}
+      <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="startQCM()">🔄 Recommencer tout le quiz</button>
       <button class="btn btn-sm" style="margin-top:8px;margin-left:8px" onclick="showScreen('home')">🏠 Accueil</button>
     </div>`;
   
@@ -1657,9 +1658,25 @@ async function endSim(){
       body:JSON.stringify({
         model:"claude-sonnet-4-5",
         max_tokens:1000,
-        system:`You are a professional trainer evaluating a call centre trainee. Evaluate the conversation and respond ONLY with valid JSON (no preamble, no markdown):
-{"scores":[score1,score2,...],"total":totalScore,"feedback":"bref feedback en français, 2-3 phrases, encourageant mais honnête"}
-Each score: 0, 1, 2, or 3. Criteria:\n${critTxt}`,
+        system:`You are an experienced and encouraging call centre trainer evaluating a BEGINNER trainee (first weeks of training). Be FAIR and GENEROUS in scoring — this is a learning context, not a final exam.
+
+SCORING RULES (strict):
+- Score 3/3: criterion clearly demonstrated, even if not perfectly worded
+- Score 2/3: criterion partially met, good attempt, minor omission
+- Score 1/3: criterion attempted but incomplete or incorrect
+- Score 0/3: criterion completely absent from the conversation
+
+IMPORTANT CONTEXT:
+- The trainee is learning English as a professional tool — minor grammar errors do NOT reduce the score
+- If the trainee asked the right questions in the right order, give full marks even if phrasing was imperfect
+- Be GENEROUS: when in doubt between two scores, always give the HIGHER score
+- A beginner who attempts the task and communicates the key information should score at least 60%
+- Only give 0 if the criterion is COMPLETELY absent
+
+Respond ONLY with valid JSON (no preamble, no markdown):
+{"scores":[score1,score2,...],"total":totalScore,"feedback":"feedback en français, 2-3 phrases, très encourageant, 1 point fort spécifique + 1 axe de progrès concret"}
+
+Criteria to evaluate:\n${critTxt}`,
         messages:[{role:'user',content:`Conversation:\n\n${conv}`}]
       })
     });
@@ -1700,31 +1717,92 @@ function replaySim(){ if(currentScoreSimId) launchSim(currentScoreSimId); }
 // ═══════════════════════════════════════════════════════
 function goQCM(){ startQCM(); showScreen('qcm'); }
 function startQCM(){
-  qcmQuestions=[...QCM_DATA].sort(()=>Math.random()-.5).slice(0,20);
-  qcmIdx=0; qcmScore=0; showQ();
+  // Use QUIZ array with shuffled questions and shuffled options
+  const base = [...QUIZ].sort(()=>Math.random()-0.5).slice(0,20);
+  qcmQuestions = base.map(q => {
+    const opts = q.opts.map((o,i)=>({text:o, isCorrect: i===q.c}));
+    const shuffled = opts.sort(()=>Math.random()-0.5);
+    const newC = shuffled.findIndex(o=>o.isCorrect);
+    return {...q, opts: shuffled.map(o=>o.text), c: newC};
+  });
+  qcmIdx=0; qcmScore=0;
+  showScreen('qcm');
+  showQ();
 }
 function showQ(){
-  const q=qcmQuestions[qcmIdx];
-  document.getElementById('qprog-fill').style.width=`${(qcmIdx/qcmQuestions.length)*100}%`;
-  document.getElementById('qcounter').textContent=`Question ${qcmIdx+1}/${qcmQuestions.length}`;
-  document.getElementById('qqestion').textContent=q.q;
-  document.getElementById('qfb').className='qfb';
-  document.getElementById('qnext').style.display='none';
-  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>`<button class="qopt" onclick="answerQ(${i})">${o}</button>`).join('');
+  const q = qcmQuestions[qcmIdx];
+  const progPct = (qcmIdx / qcmQuestions.length) * 100;
+  document.getElementById('qprog-fill').style.width = progPct + '%';
+  document.getElementById('qcounter').textContent = 'Question ' + (qcmIdx+1) + ' / ' + qcmQuestions.length;
+  document.getElementById('qqestion').textContent = q.q;
+  document.getElementById('qfb').className = 'qfb';
+  document.getElementById('qfb').innerHTML = '';
+  document.getElementById('qnext').style.display = 'none';
+  document.getElementById('qopts').innerHTML = q.opts.map((o,i) =>
+    `<button class="qopt" onclick="answerQ(${i})">${o}</button>`
+  ).join('');
 }
 function answerQ(idx){
-  const q=qcmQuestions[qcmIdx];
+  const q = qcmQuestions[qcmIdx];
   document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
-  const ok=idx===q.c;
+  const ok = idx === q.c;
   if(ok) qcmScore++;
+
+  // Visual feedback on options
   document.querySelectorAll('.qopt')[q.c].classList.add('correct');
   if(!ok) document.querySelectorAll('.qopt')[idx].classList.add('wrong');
-  const fb=document.getElementById('qfb');
-  fb.textContent=(ok?'✅ Correct ! ':'❌ Incorrect. ')+q.ex;
-  fb.className=`qfb show ${ok?'correct':'wrong'}`;
-  const nxt=document.getElementById('qnext');
-  nxt.style.display='block';
-  nxt.textContent=qcmIdx+1>=qcmQuestions.length?`Voir mon score (${qcmScore}/${qcmQuestions.length})`:'Question suivante →';
+
+  // Text feedback
+  const fb = document.getElementById('qfb');
+  fb.className = 'qfb show ' + (ok ? 'correct' : 'wrong');
+  
+  // Detect if correct answer is in English (contains English words) to speak it
+  const correctText = q.opts[q.c];
+  const hasEnglish = /[a-zA-Z]{3,}/.test(correctText) && !/Comment|Que |Quelle|Combien|Pour|Votre|Vous|Un |Une |Le |La |Les /.test(correctText);
+  
+  let audioBtn = '';
+  if(hasEnglish){
+    audioBtn = `<button class="qopt-speak-btn" onclick="speakQuizAnswer('${correctText.replace(/'/g,"\'")}',this)" title="Écouter la prononciation">🔊 Écouter</button>`;
+  }
+  
+  fb.innerHTML = (ok ? '✅ Correct ! ' : '❌ Bonne réponse : <strong>' + correctText + '</strong><br>') 
+    + '<span style="font-size:12px;opacity:.85">' + q.ex + '</span>'
+    + (audioBtn ? '<br><br>' + audioBtn : '');
+  
+  // Auto-speak if correct answer is English
+  if(hasEnglish){
+    setTimeout(() => {
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(correctText);
+      utt.lang = 'en-GB';
+      utt.rate = 0.85;
+      utt.pitch = 1;
+      const voices = window.speechSynthesis.getVoices();
+      const enV = voices.find(v=>v.lang==='en-GB') || voices.find(v=>v.lang.startsWith('en'));
+      if(enV) utt.voice = enV;
+      window.speechSynthesis.speak(utt);
+    }, 400);
+  }
+
+  // Next button
+  const nxt = document.getElementById('qnext');
+  nxt.style.display = 'block';
+  nxt.textContent = qcmIdx + 1 >= qcmQuestions.length
+    ? '🏆 Voir mon résultat final'
+    : 'Question suivante →';
+}
+
+function speakQuizAnswer(text, btn){
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.qopt-speak-btn').forEach(b=>b.style.background='');
+  btn.style.background = 'var(--accent)';
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB'; utt.rate = 0.8; utt.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const enV = voices.find(v=>v.lang==='en-GB') || voices.find(v=>v.lang.startsWith('en'));
+  if(enV) utt.voice = enV;
+  utt.onend = ()=>btn.style.background='';
+  window.speechSynthesis.speak(utt);
 }
 function nextQ(){
   qcmIdx++;
@@ -1732,24 +1810,37 @@ function nextQ(){
   else showQ();
 }
 function showQCMResult(){
-  const pct=Math.round((qcmScore/qcmQuestions.length)*100);
-  const ok=pct>=70;
-  document.getElementById('sc-emoji').textContent=ok?'🎓':'📚';
-  document.getElementById('sc-lbl').textContent='Quiz Vocabulaire M7';
-  document.getElementById('sc-num').textContent=qcmScore;
-  document.getElementById('sc-denom').textContent=`/${qcmQuestions.length}`;
-  const st=document.getElementById('sc-status');
-  st.textContent=ok?`✅ ${pct}% — Bien joué !`:`↺ ${pct}% — Révise le lexique !`;
-  st.className=`score-status ${ok?'ss-ok':'ss-ko'}`;
-  document.getElementById('sc-fb').textContent=ok?'Tu maîtrises bien le vocabulaire de base. Continue les simulations !':'Consulte le lexique de référence pour renforcer tes connaissances.';
-  document.getElementById('sc-breakdown').innerHTML='';
-  currentScoreSimId=null;
+  const total = qcmQuestions.length;
+  const pct = Math.round((qcmScore / total) * 100);
+  const validated = qcmScore >= 18;
+  
+  document.getElementById('sc-emoji').textContent = qcmScore === total ? '🏆' : validated ? '🎓' : '📚';
+  document.getElementById('sc-lbl').textContent = 'Quiz — Anglais Relation Client';
+  document.getElementById('sc-num').textContent = qcmScore;
+  document.getElementById('sc-denom').textContent = '/' + total;
+  
+  const st = document.getElementById('sc-status');
+  st.textContent = validated
+    ? '✅ ' + pct + '% — Validé ! Excellent travail !'
+    : '↺ ' + pct + '% — ' + qcmScore + '/20 — Seuil de validation : 18/20';
+  st.className = 'score-status ' + (validated ? 'ss-ok' : 'ss-ko');
+  
+  const wrongCount = total - qcmScore;
+  document.getElementById('sc-fb').textContent = validated
+    ? 'Tu maîtrises parfaitement le vocabulaire et les formules professionnelles en anglais. Continue les simulations pour consolider !'
+    : wrongCount === 1
+      ? 'Presque ! 1 seule erreur — relis le lexique et relance le quiz.'
+      : 'Encore ' + wrongCount + ' point(s) à consolider. Revois le cours et relance le quiz quand tu es prêt·e.';
+  
+  document.getElementById('sc-breakdown').innerHTML = `
+    <div style="margin-top:16px;padding:14px;background:var(--card2);border-radius:10px;font-size:13px">
+      <button class="btn btn-outline btn-sm" onclick="startQCM()" style="margin-right:8px">🔄 Recommencer le quiz</button>
+      <button class="btn btn-sm" onclick="showScreen('sim-select')">▶ Aller aux simulations</button>
+    </div>`;
+  
+  currentScoreSimId = null;
   showScreen('score-screen');
 }
-
-// ═══════════════════════════════════════════════════════
-// VOCAB
-// ═══════════════════════════════════════════════════════
 function buildVocab(){
   document.getElementById('vocab-grid').innerHTML=VOCAB_DATA.map(v=>`
     <div class="vcard"><div class="vfr">${v.fr}</div><div class="ven">${v.en}</div><div class="vpr">🔊 ${v.pr}</div></div>`).join('');
@@ -1765,7 +1856,7 @@ function showProgress(){
   document.getElementById('sc-num').textContent=done;
   document.getElementById('sc-denom').textContent='/10 validées';
   const st=document.getElementById('sc-status');
-  st.textContent=done>=8?'✅ Module M7 Validé !':` ${10-done} simulation(s) restante(s)`;
+  st.textContent=done>=8?'✅ Anglais Validé — 8 simulations réussies !':` ${10-done} simulation(s) restante(s)`;
   st.className=`score-status ${done>=8?'ss-ok':'ss-ko'}`;
   document.getElementById('sc-fb').textContent=Object.keys(simResults).length===0?"Aucune simulation réalisée pour l'instant.":
     Object.entries(simResults).map(([id,r])=>{const s=SIMS.find(x=>x.id==id); return `S${id} ${s?.title}: ${r.score}/${s?.maxScore} ${r.validated?'✅':'↺'}`;}).join(' • ');
