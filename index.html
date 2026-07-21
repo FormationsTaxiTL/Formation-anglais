@@ -1595,15 +1595,17 @@ function startRecording(){
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
-  recognition.lang='en-US'; recognition.continuous=false; recognition.interimResults=true;
+  recognition.lang='fr-FR'; recognition.continuous=false; recognition.interimResults=true;
   recognition.onresult = e=>{
     let interim='', final='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal) final+=e.results[i][0].transcript;
       else interim+=e.results[i][0].transcript;
     }
-    document.getElementById('voice-transcript').textContent = final||interim;
-    voiceTranscript = final||interim;
+    const raw = final||interim;
+    const normalized = normalizeSpeech(raw);
+    document.getElementById('voice-transcript').textContent = normalized;
+    voiceTranscript = normalized;
   };
   recognition.onend = ()=>{ isRecording=false; updateVoiceBtn(); if(voiceTranscript) showVoiceConfirm(); };
   recognition.onerror = ()=>{ isRecording=false; updateVoiceBtn(); addSysMsg("Erreur micro. Réessaie ou utilise le mode texte."); };
@@ -1625,9 +1627,84 @@ function updateVoiceBtn(){
 function showVoiceConfirm(){
   document.getElementById('voice-transcript-area').style.display='block';
 }
+
+// ═══════════════════════════════════════════════════════
+// SPEECH NORMALIZER — Corrige les lieux lyonnais et formules EN
+// ═══════════════════════════════════════════════════════
+function normalizeSpeech(text) {
+  if (!text) return text;
+  let t = text.trim();
+  
+  // ── LIEUX LYONNAIS — corrections phonétiques fr-FR ──
+  const places = [
+    // Gares
+    [/part[\s-]?d[iî]eu?|par d[iî]eu?|part d[iî]o|par diable|partisan/gi, 'Part-Dieu'],
+    [/perrache?|péra[cs]h?e?|pérache/gi, 'Perrache'],
+    [/vaise|vais|vaiz/gi, 'Vaise'],
+    [/guilloti[eè]re?|guilotiè?r/gi, 'Guillotière'],
+    
+    // Aéroport
+    [/saint[\s-]?exup[eé]r[yi]|san exupéry|saintex|sent exupéri|san[\s-]?exuperi/gi, 'Saint-Exupéry'],
+    [/a[eé]roport|air[o0]port|airo port/gi, 'aéroport'],
+    [/lyon[\s-]?saint[\s-]?ex|l[iy]on saint ex/gi, 'Lyon Saint-Exupéry'],
+    
+    // Quartiers et rues
+    [/bellecour|bel court|belle cour|bellecours/gi, 'Bellecour'],
+    [/fourvière|forvière|for vière|fourvie/gi, 'Fourvière'],
+    [/jean[\s-]?jaurès|jean jores|jean jorge/gi, 'Jean Jaurès'],
+    [/presqu'?[iî]le|presk[iî]l/gi, "Presqu'île"],
+    [/cordeliers?|cordelier/gi, 'Cordeliers'],
+    [/terreaux|terro|terra/gi, 'Terreaux'],
+    [/bron|brons|brum/gi, 'Bron'],
+    [/villeurbanne?|vill urbane|vill[eé] urbain/gi, 'Villeurbanne'],
+    
+    // Hôtels courants dans les sims
+    [/sofitel|so fi tel|sofi tel/gi, 'Sofitel'],
+    [/carlton|carl ton/gi, 'Carlton'],
+    
+    // ── FORMULES ANGLAISES — corrections phonétiques fr-FR ──
+    [/hello\s+[a-z]+\s+speaking|allô [a-z]+ speaking|halo [a-z]+ speaking/gi, 
+     (m) => m.replace(/allô|halo/gi, 'hello')],
+    [/how can i help(?: you)?|comment puis-je vous aider/gi, 'how can I help you'],
+    [/pick[\s-]?up|piqueupe|pick up/gi, 'pick-up'],
+    [/may i have|mai aï have|me I have/gi, 'may I have'],
+    [/could you please|coud you please|coud you pliz/gi, 'could you please'],
+    [/hold on|old on|hold ont/gi, 'hold on'],
+    [/your booking is confirmed|your booking is confirm/gi, 'your booking is confirmed'],
+    [/the driver will be there in/gi, 'the driver will be there in'],
+    [/how many passengers?|how méni/gi, 'how many passengers'],
+    [/do you have any luggage?|du you have/gi, 'do you have any luggage'],
+    [/what is your pick[\s-]?up address/gi, 'what is your pick-up address'],
+    [/where would you like to go/gi, 'where would you like to go'],
+    [/i('m| am) very sorry for the inconvenience/gi, "I'm very sorry for the inconvenience"],
+    [/no problem[,.]?/gi, 'no problem'],
+    [/have a good (flight|trip|journey)/gi, (m) => m],
+    
+    // ── CHIFFRES ET DÉLAIS ──
+    [/(\d+)\s*minutes?/gi, '$1 minutes'],
+    [/dans\s+(\d+)\s*minutes?/gi, 'in $1 minutes'],
+  ];
+  
+  places.forEach(([pattern, replacement]) => {
+    if (typeof replacement === 'string') {
+      t = t.replace(pattern, replacement);
+    } else {
+      t = t.replace(pattern, replacement);
+    }
+  });
+  
+  return t;
+}
+
 function sendVoice(){
-  const txt = document.getElementById('voice-transcript').textContent.trim();
-  if(!txt) return;
+  const raw = document.getElementById('voice-transcript').textContent.trim();
+  if(!raw) return;
+  const txt = normalizeSpeech(raw);
+  // Update display to show normalized text
+  if(txt !== raw) {
+    document.getElementById('voice-transcript').textContent = txt;
+    document.getElementById('voice-transcript').style.borderColor = 'var(--accent)';
+  }
   document.getElementById('voice-transcript-area').style.display='none';
   voiceTranscript='';
   addUserMsg(txt);
