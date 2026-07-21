@@ -402,6 +402,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
       <div class="course-meta" id="course-meta"></div>
     </div>
 
+
+    <!-- AUDIO PLAYER PRO -->
+    <div class="audio-player" id="audio-player">
+      <div class="audio-player-title">🎧 Lecteur audio du cours</div>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress" id="ap-progress" onclick="apSeek(event)">
+          <div class="audio-progress-bar" id="ap-bar" style="width:0%"></div>
+          <div class="audio-progress-thumb" id="ap-thumb" style="left:0%"></div>
+        </div>
+        <div class="audio-time" id="ap-time">0 / 0</div>
+      </div>
+      <div class="audio-controls">
+        <button class="audio-btn" onclick="apPrev()" title="Étape précédente">⏮ Préc.</button>
+        <button class="audio-btn primary" id="ap-play-btn" onclick="apToggle()">▶ Lecture</button>
+        <button class="audio-btn" onclick="apNext()" title="Étape suivante">Suiv. ⏭</button>
+        <button class="audio-btn" onclick="apStop()" title="Arrêter">⏹ Stop</button>
+        <select class="audio-speed" id="ap-speed" onchange="apSetSpeed(this.value)" title="Vitesse">
+          <option value="0.7">🐢 Lent</option>
+          <option value="0.9" selected>Normal</option>
+          <option value="1.1">⚡ Rapide</option>
+        </select>
+      </div>
+      <div class="audio-steps-nav" id="ap-steps-nav">
+        <button class="audio-btn" onclick="apPrev()" style="padding:7px 10px;">◀</button>
+        <div style="flex:1">
+          <div class="audio-step-label">
+            <span id="ap-step-title">Prêt à démarrer</span>
+            <small id="ap-step-sub"></small>
+          </div>
+        </div>
+        <div class="audio-steps-dots" id="ap-dots"></div>
+        <button class="audio-btn" onclick="apNext()" style="padding:7px 10px;">▶</button>
+      </div>
+    </div>
     <div class="course-section">
       <h3>Contexte</h3>
       <div class="course-context" id="course-ctx"></div>
@@ -1033,6 +1067,30 @@ function buildSimList(){
 // COURSE
 // ═══════════════════════════════════════════════════════
 function goToCourse(id){ loadCourse(id); showScreen('course'); }
+function buildApQueue(s){
+  const q = [];
+  // Intro
+  q.push({text: `Cours de la simulation ${s.id} : ${s.title}. ${s.sub}.`, label:'Introduction', sublabel:'Présentation du cours'});
+  // Contexte
+  q.push({text: "Contexte de la simulation. " + s.courseCtx, label:'Contexte', sublabel:'Situation et objectif'});
+  // Phrases clés
+  q.push({text: "Phrases clés à utiliser.", label:'Phrases clés', sublabel:'Écoute et répète'});
+  s.phrases.forEach((p,i)=>{
+    q.push({text: p.en, label:`Phrase ${i+1}`, sublabel: p.fr, isPhrase:true});
+  });
+  // Étapes
+  q.push({text: "Étapes de l'appel.", label:'Étapes', sublabel:'Procédure à suivre'});
+  s.steps.forEach(st=>{
+    q.push({text: `Étape ${st.n} : ${st.title}. ${st.desc}. ${st.eg ? 'Exemple : ' + st.eg : ''}`, label:`Étape ${st.n} — ${st.title}`, sublabel: st.desc.substring(0,60)+'...'});
+  });
+  // Erreurs
+  q.push({text: "Erreurs à éviter.", label:'Erreurs à éviter', sublabel:'Points critiques'});
+  s.pitfalls.forEach((p,i)=>{
+    q.push({text: p, label:`Erreur ${i+1}`, sublabel:''});
+  });
+  return q;
+}
+
 function loadCourse(id){
   currentSimId = id;
   const s = SIMS.find(x=>x.id===id);
@@ -1044,8 +1102,9 @@ function loadCourse(id){
     <span class="course-badge cb-time">⏱ ${[10,15,15,12,10,12,12,15,15,12][id-1]} min</span>
     ${s.comps.map(c=>`<span class="course-badge cb-${c}">${c}</span>`).join('')}`;
   document.getElementById('course-ctx').textContent = s.courseCtx;
-  document.getElementById('course-phrases').innerHTML = s.phrases.map(p=>`
-    <div class="phrase-row">
+  document.getElementById('course-phrases').innerHTML = s.phrases.map((p,i)=>`
+    <div class="phrase-row" onclick="speakPhrase(this,'${p.en.replace(/'/g,"\'")}')" title="Cliquer pour écouter">
+      <button class="phrase-play-btn">🔊</button>
       <div class="phrase-fr">${p.fr}</div>
       <div><div class="phrase-en">${p.en}</div></div>
     </div>`).join('');
@@ -1060,6 +1119,10 @@ function loadCourse(id){
     </div>`).join('');
   document.getElementById('course-pitfalls').innerHTML = s.pitfalls.map(p=>`
     <div class="pitfall"><span>⚠️</span><span>${p}</span></div>`).join('');
+  // Init audio player
+  apStop();
+  apQueue = buildApQueue(s);
+  apUpdateUI();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1155,7 +1218,7 @@ async function callClient(userMsg){
     const res = await fetch("https://api.anthropic.com/v1/messages",{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:s.systemPrompt,messages:msgs})
+      body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1000,system:s.systemPrompt,messages:msgs})
     });
     const data = await res.json();
     const reply = data.content?.[0]?.text || '...';
@@ -1173,6 +1236,134 @@ function showHint(){
 }
 
 // ─── VOICE ───
+
+// ═══════════════════════════════════════════════════════
+// AUDIO PLAYER PRO — COURS
+// ═══════════════════════════════════════════════════════
+let apQueue = [];       // {text, label, sublabel}
+let apIndex = 0;
+let apPlaying = false;
+let apUtterance = null;
+let apSpeed = 0.9;
+let apPaused = false;
+
+
+function apRenderDots(){
+  const d = document.getElementById('ap-dots');
+  if(!d) return;
+  d.innerHTML = apQueue.map((_,i)=>`<div class="audio-step-dot ${i<apIndex?'done':i===apIndex?'active':''}"></div>`).join('');
+}
+
+function apUpdateUI(){
+  const playBtn = document.getElementById('ap-play-btn');
+  const stepTitle = document.getElementById('ap-step-title');
+  const stepSub = document.getElementById('ap-step-sub');
+  const timeEl = document.getElementById('ap-time');
+  if(!playBtn) return;
+  playBtn.textContent = apPlaying && !apPaused ? '⏸ Pause' : '▶ Lecture';
+  playBtn.className = 'audio-btn ' + (apPlaying && !apPaused ? 'active' : 'primary');
+  const cur = apQueue[apIndex];
+  if(cur){ stepTitle.textContent = cur.label; stepSub.textContent = cur.sublabel||''; }
+  timeEl.textContent = `${apIndex+1} / ${apQueue.length}`;
+  const pct = apQueue.length > 1 ? (apIndex/(apQueue.length-1))*100 : 0;
+  document.getElementById('ap-bar').style.width = pct+'%';
+  document.getElementById('ap-thumb').style.left = pct+'%';
+  apRenderDots();
+  // Highlight current phrase row if applicable
+  document.querySelectorAll('.phrase-row').forEach(r=>r.classList.remove('playing'));
+  document.querySelectorAll('.step-item').forEach(r=>r.classList.remove('playing'));
+}
+
+function apSpeak(idx){
+  if(idx >= apQueue.length){ apStop(); return; }
+  apIndex = idx;
+  apPlaying = true; apPaused = false;
+  apUpdateUI();
+  const item = apQueue[idx];
+  window.speechSynthesis.cancel();
+  apUtterance = new SpeechSynthesisUtterance(item.text);
+  apUtterance.rate = apSpeed;
+  // English for phrases/steps content, French for labels
+  apUtterance.lang = item.isPhrase ? 'en-GB' : 'fr-FR';
+  apUtterance.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  if(item.isPhrase){
+    const enV = voices.find(v=>v.lang.startsWith('en-GB')) || voices.find(v=>v.lang.startsWith('en')) || null;
+    if(enV) apUtterance.voice = enV;
+  } else {
+    const frV = voices.find(v=>v.lang.startsWith('fr')) || null;
+    if(frV) apUtterance.voice = frV;
+  }
+  apUtterance.onend = ()=>{ if(apPlaying && !apPaused) setTimeout(()=>apSpeak(apIndex+1), 600); };
+  apUtterance.onerror = ()=>{ apPlaying=false; apUpdateUI(); };
+  window.speechSynthesis.speak(apUtterance);
+}
+
+function apToggle(){
+  if(!apQueue.length) return;
+  if(apPaused){
+    apPaused = false; apPlaying = true;
+    apSpeak(apIndex);
+  } else if(apPlaying){
+    apPaused = true; apPlaying = false;
+    window.speechSynthesis.cancel();
+    apUpdateUI();
+  } else {
+    apSpeak(apIndex);
+  }
+}
+function apStop(){
+  apPlaying = false; apPaused = false; apIndex = 0;
+  window.speechSynthesis.cancel();
+  apUpdateUI();
+}
+function apNext(){
+  const wasPlaying = apPlaying && !apPaused;
+  window.speechSynthesis.cancel();
+  apPaused = false;
+  if(apIndex < apQueue.length-1){
+    if(wasPlaying) apSpeak(apIndex+1);
+    else { apIndex++; apPlaying=false; apUpdateUI(); }
+  }
+}
+function apPrev(){
+  const wasPlaying = apPlaying && !apPaused;
+  window.speechSynthesis.cancel();
+  apPaused = false;
+  if(apIndex > 0){
+    if(wasPlaying) apSpeak(apIndex-1);
+    else { apIndex--; apPlaying=false; apUpdateUI(); }
+  }
+}
+function apSeek(e){
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const newIdx = Math.round(pct * (apQueue.length-1));
+  const wasPlaying = apPlaying && !apPaused;
+  window.speechSynthesis.cancel();
+  apPaused = false;
+  if(wasPlaying) apSpeak(newIdx);
+  else { apIndex = newIdx; apPlaying=false; apUpdateUI(); }
+}
+function apSetSpeed(v){
+  apSpeed = parseFloat(v);
+  if(apPlaying && !apPaused){ window.speechSynthesis.cancel(); apSpeak(apIndex); }
+}
+function speakPhrase(el, text){
+  document.querySelectorAll('.phrase-row').forEach(r=>r.classList.remove('playing'));
+  el.classList.add('playing');
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang='en-GB'; utt.rate=apSpeed; utt.pitch=1;
+  const voices = window.speechSynthesis.getVoices();
+  const enV = voices.find(v=>v.lang.startsWith('en-GB')) || voices.find(v=>v.lang.startsWith('en'));
+  if(enV) utt.voice = enV;
+  utt.onend = ()=>el.classList.remove('playing');
+  window.speechSynthesis.speak(utt);
+}
+// Preload voices
+window.speechSynthesis.onvoiceschanged = ()=>{ window.speechSynthesis.getVoices(); };
+
 function speakText(txt){
   if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -1255,7 +1446,7 @@ async function endSim(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
+        model:"claude-sonnet-4-5",
         max_tokens:1000,
         system:`You are a professional trainer evaluating a call centre trainee. Evaluate the conversation and respond ONLY with valid JSON (no preamble, no markdown):
 {"scores":[score1,score2,...],"total":totalScore,"feedback":"bref feedback en français, 2-3 phrases, encourageant mais honnête"}
