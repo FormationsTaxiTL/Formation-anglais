@@ -353,7 +353,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <h3>Quiz Vocabulaire</h3>
           <p>20 questions sur les phrases clés et le vocabulaire professionnel anglais.</p>
         </button>
-        <button class="menu-card" onclick="showScreen('vocab')">
+        <button class="menu-card" onclick="showVocabScreen()">
           <div class="mc-icon">📖</div>
           <h3>Lexique de référence</h3>
           <p>Les 20 expressions essentielles avec prononciation simplifiée.</p>
@@ -382,6 +382,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
       <h2>Choisir une simulation</h2>
       <p>Lis le cours avant chaque simulation. Le client IA parlera en anglais.</p>
     </div>
+    <div class="progress-overview" id="progress-overview"></div>
     <div class="sim-list" id="sim-list"></div>
   </div>
 </div>
@@ -550,15 +551,42 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 <div id="vocab" class="screen">
   <div class="header">
     <div class="logo">TAXITL <span>M7</span></div>
-    <div class="hbadge">Lexique</div>
+    <div class="hbadge">Vocabulaire</div>
   </div>
-  <div class="vocab-body">
-    <button class="btn-ghost" onclick="showScreen('menu')">← Retour</button>
+  <div class="course-body">
+    <button class="btn-ghost" onclick="showScreen('menu')">← Retour au menu</button>
     <div class="page-hd" style="margin-top:12px">
-      <h2>Phrases clés — Module M7</h2>
-      <p>Les 20 expressions essentielles avec prononciation simplifiée.</p>
+      <h2>Vocabulaire professionnel</h2>
+      <p>3 sections à maîtriser — alphabet, heures, lexique métier</p>
     </div>
-    <div class="vocab-grid" id="vocab-grid"></div>
+    <div id="vocab-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VOCAB LEARN SCREEN
+═══════════════════════════════════════ -->
+<div id="vocab-learn" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <button class="btn btn-outline btn-sm" onclick="showVocabScreen()">← Sections</button>
+  </div>
+  <div class="course-body">
+    <div id="vocab-learn-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VOCAB TEST SCREEN
+═══════════════════════════════════════ -->
+<div id="vocab-test" class="screen">
+  <div class="header">
+    <div class="logo">TAXITL <span>M7</span></div>
+    <div class="hbadge">Test</div>
+  </div>
+  <div class="course-body">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px;color:var(--accent)">🎯 Test de prononciation</div>
+    <div id="vocab-test-content"></div>
   </div>
 </div>
 
@@ -896,6 +924,19 @@ const SIMS = [
 // ═══════════════════════════════════════════════════════
 let student = {prenom:'', nom:'', date:'', voiceConsent:false};
 let simResults = {};
+
+// Restore simResults from localStorage on startup
+function restoreSimResults(){
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    simResults = {};
+    Object.entries(data).forEach(([id, d]) => {
+      if(id !== 'quiz' && id !== 'vocab_alpha' && id !== 'vocab_hours' && id !== 'vocab_lexique'){
+        simResults[id] = {score: d.score, maxScore: d.maxScore, validated: d.validated};
+      }
+    });
+  } catch(e){ simResults = {}; }
+}
 let currentSimId = null;
 let chatHistory = [];
 let isLoading = false;
@@ -964,10 +1005,6 @@ function showErr(msg){
 function logout(){
   showScreen('login');
 }
-
-// ═══════════════════════════════════════════════════════
-// MENU / MODULE
-// ═══════════════════════════════════════════════════════
 function switchModule(mod){
   document.querySelectorAll('.module-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.module-content').forEach(c=>c.classList.remove('active'));
@@ -1433,21 +1470,9 @@ function shuffleQuiz(){
 }
 
 function startQuiz(retryWrongOnly=false){
-  if(!retryWrongOnly){
-    shuffleQuiz();
-    quizWrongIndexes = [];
-    quizRetryMode = false;
-  } else {
-    // Only wrong questions
-    quizData = quizWrongIndexes.map(i=>quizData[i]);
-    quizAnswers = new Array(quizData.length).fill(null);
-    quizWrongIndexes = [];
-    quizRetryMode = true;
-  }
-  renderQuiz();
+  // Legacy compatibility — routes to startQCM
   startQCM();
 }
-
 function renderQuiz(){
   const container = document.getElementById('quiz-questions');
   if(!container) return;
@@ -1525,10 +1550,10 @@ function submitQuiz(){
       </div>
       ${!validated && quizWrongIndexes.length > 0 ? `<button class="btn btn-outline btn-sm" onclick="startQCM()">🔁 Reprendre uniquement les ${quizWrongIndexes.length} question(s) ratée(s)</button>` : ''}
       <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="startQCM()">🔄 Recommencer tout le quiz</button>
-      <button class="btn btn-sm" style="margin-top:8px;margin-left:8px" onclick="showScreen('home')">🏠 Accueil</button>
+      <button class="btn btn-sm" style="margin-top:8px;margin-left:8px" onclick="showScreen('menu')">🏠 Accueil</button>
     </div>`;
   
-  document.getElementById('quiz-submit').outerHTML = resultHtml;
+  const qs = document.getElementById('quiz-submit'); if(qs) qs.outerHTML = resultHtml;
   window.scrollTo(0,document.body.scrollHeight);
 }
 
@@ -1596,6 +1621,9 @@ function startRecording(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang='fr-FR'; recognition.continuous=false; recognition.interimResults=true;
+  
+  let autoRestarting = true; // Option B: auto-restart
+  
   recognition.onresult = e=>{
     let interim='', final='';
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -1606,9 +1634,32 @@ function startRecording(){
     const normalized = normalizeSpeech(raw);
     document.getElementById('voice-transcript').textContent = normalized;
     voiceTranscript = normalized;
+    // Show the transcript area as user speaks
+    document.getElementById('voice-transcript-area').style.display='block';
   };
-  recognition.onend = ()=>{ isRecording=false; updateVoiceBtn(); if(voiceTranscript) showVoiceConfirm(); };
-  recognition.onerror = ()=>{ isRecording=false; updateVoiceBtn(); addSysMsg("Erreur micro. Réessaie ou utilise le mode texte."); };
+  
+  recognition.onend = ()=>{
+    if(autoRestarting && isRecording){
+      // Option B: restart automatically so student can keep speaking
+      try { recognition.start(); } catch(e){ isRecording=false; updateVoiceBtn(); if(voiceTranscript) showVoiceConfirm(); }
+    } else {
+      isRecording=false; updateVoiceBtn(); if(voiceTranscript) showVoiceConfirm();
+    }
+  };
+  
+  recognition.onerror = e=>{
+    if(e.error === 'no-speech' && autoRestarting && isRecording){
+      // No speech detected — restart silently
+      try { recognition.start(); } catch(err){ isRecording=false; updateVoiceBtn(); }
+    } else if(e.error !== 'aborted'){
+      isRecording=false; updateVoiceBtn();
+      addSysMsg("Erreur micro. Réessaie ou utilise le mode texte.");
+    }
+  };
+  
+  // Store autoRestarting on recognition object for stopListening to access
+  recognition._autoRestart = ()=>{ autoRestarting=false; recognition.stop(); };
+  
   recognition.start();
   isRecording=true;
   voiceTranscript='';
@@ -1915,6 +1966,15 @@ function showQCMResult(){
       <button class="btn btn-sm" onclick="showScreen('sim-select')">▶ Aller aux simulations</button>
     </div>`;
   
+  // Save quiz score to localStorage
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if(!data.quiz || qcmScore > (data.quiz.score || 0)){
+      data.quiz = {score: qcmScore, total: total, pct, validated, date: new Date().toLocaleDateString('fr-FR')};
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e){}
+  
   currentScoreSimId = null;
   showScreen('score-screen');
 }
@@ -1947,6 +2007,725 @@ if(window.speechSynthesis) window.speechSynthesis.getVoices();
 buildVocab();
 // Set today's date
 document.getElementById('inp-date').valueAsDate = new Date();
+// ═══════════════════════════════════════════════════════
+// INITIALIZATION — runs when page loads
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Restore simulation progress from localStorage
+  restoreSimResults();
+  
+  // Ensure voices are loaded for speech synthesis
+  if(window.speechSynthesis){
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = ()=>{ window.speechSynthesis.getVoices(); };
+  }
+  
+  // Render progress badges if sim-select is visible
+  setTimeout(()=>{
+    renderProgressBadges();
+    renderProgressOverview();
+  }, 100);
+});
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// VOCABULARY DATA — 3 sections: Alphabet, Hours, Lexique métier
+// ═══════════════════════════════════════════════════════════════════════
+
+const VOCAB_SECTIONS = {
+
+  alphabet: {
+    id: 'alpha',
+    title: '🔤 Alphabet anglais',
+    subtitle: 'Indispensable pour épeler les noms clients',
+    storageKey: 'vocab_alpha',
+    items: [
+      {id:'A', fr:'A', en:'A', pr:'éï', phonetic:'eɪ'},
+      {id:'B', fr:'B', en:'B', pr:'bi', phonetic:'biː'},
+      {id:'C', fr:'C', en:'C', pr:'si', phonetic:'siː'},
+      {id:'D', fr:'D', en:'D', pr:'di', phonetic:'diː'},
+      {id:'E', fr:'E', en:'E', pr:'i', phonetic:'iː'},
+      {id:'F', fr:'F', en:'F', pr:'ef', phonetic:'ɛf'},
+      {id:'G', fr:'G', en:'G', pr:'dji', phonetic:'dʒiː'},
+      {id:'H', fr:'H', en:'H', pr:'éïtch', phonetic:'eɪtʃ'},
+      {id:'I', fr:'I', en:'I', pr:'aï', phonetic:'aɪ'},
+      {id:'J', fr:'J', en:'J', pr:'djéï', phonetic:'dʒeɪ'},
+      {id:'K', fr:'K', en:'K', pr:'kéï', phonetic:'keɪ'},
+      {id:'L', fr:'L', en:'L', pr:'el', phonetic:'ɛl'},
+      {id:'M', fr:'M', en:'M', pr:'em', phonetic:'ɛm'},
+      {id:'N', fr:'N', en:'N', pr:'en', phonetic:'ɛn'},
+      {id:'O', fr:'O', en:'O', pr:'ô', phonetic:'oʊ'},
+      {id:'P', fr:'P', en:'P', pr:'pi', phonetic:'piː'},
+      {id:'Q', fr:'Q', en:'Q', pr:'kiou', phonetic:'kjuː'},
+      {id:'R', fr:'R', en:'R', pr:'ar', phonetic:'ɑːr'},
+      {id:'S', fr:'S', en:'S', pr:'es', phonetic:'ɛs'},
+      {id:'T', fr:'T', en:'T', pr:'ti', phonetic:'tiː'},
+      {id:'U', fr:'U', en:'U', pr:'iou', phonetic:'juː'},
+      {id:'V', fr:'V', en:'V', pr:'vi', phonetic:'viː'},
+      {id:'W', fr:'W', en:'W', pr:'dôbl-iou', phonetic:'dʌbəljuː'},
+      {id:'X', fr:'X', en:'X', pr:'eks', phonetic:'ɛks'},
+      {id:'Y', fr:'Y', en:'Y', pr:'waï', phonetic:'waɪ'},
+      {id:'Z', fr:'Z', en:'Z', pr:'zed', phonetic:'zɛd'},
+    ],
+    testPrompts: ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+    tip: 'Pratique : Could you spell your name please? — S-M-I-T-H — Smith!'
+  },
+
+  hours: {
+    id: 'hours',
+    title: '🕐 Heures AM/PM',
+    subtitle: 'Pour les vols, trains et prises en charge',
+    storageKey: 'vocab_hours',
+    items: [
+      {id:'h1',  fr:'Minuit',          en:'12:00 AM — midnight',    pr:'twelvə éï-em — midnaïte'},
+      {id:'h2',  fr:'1h du matin',     en:'1:00 AM',                pr:'wôn éï-em'},
+      {id:'h3',  fr:'5h30 du matin',   en:'5:30 AM',                pr:'faïv-sörty éï-em'},
+      {id:'h4',  fr:'7h du matin',     en:'7:00 AM',                pr:'sevn éï-em'},
+      {id:'h5',  fr:'7h45 du matin',   en:'7:45 AM',                pr:'sevn-fôrty faïv éï-em'},
+      {id:'h6',  fr:'8h du matin',     en:'8:00 AM',                pr:'éït éï-em'},
+      {id:'h7',  fr:'9h30 du matin',   en:'9:30 AM',                pr:'naïn-sörty éï-em'},
+      {id:'h8',  fr:'Midi',            en:'12:00 PM — noon',        pr:'twelvə pi-em — noun'},
+      {id:'h9',  fr:'14h / 2h de l\'après-midi', en:'2:00 PM',     pr:'tou pi-em'},
+      {id:'h10', fr:'14h35',           en:'2:35 PM',                pr:'tou-sörty faïv pi-em'},
+      {id:'h11', fr:'16h45',           en:'4:45 PM',                pr:'for-fôrty faïv pi-em'},
+      {id:'h12', fr:'18h15',           en:'6:15 PM',                pr:'siks-fiftine pi-em'},
+      {id:'h13', fr:'20h / 8h du soir','en':'8:00 PM',             pr:'éït pi-em'},
+      {id:'h14', fr:'21h30',           en:'9:30 PM',                pr:'naïn-sörty pi-em'},
+      {id:'h15', fr:'AM = matin (avant midi)',    en:'AM — ante meridiem', pr:'éï-em'},
+      {id:'h16', fr:'PM = après-midi / soir',     en:'PM — post meridiem', pr:'pi-em'},
+      {id:'h17', fr:'Quelle heure est votre vol (départ) ?', en:'What time does your flight depart?', pr:'wot taïm daz yor flaït dipârt'},
+      {id:'h18', fr:'Quelle heure atterrit votre vol ?',     en:'What time does your flight arrive?',  pr:'wot taïm daz yor flaït eraïv'},
+      {id:'h19', fr:'Quelle heure part votre train ?',       en:'What time does your train leave?',    pr:'wot taïm daz yor tréïn liv'},
+      {id:'h20', fr:'Quelle heure arrive votre train ?',     en:'What time does your train arrive?',   pr:'wot taïm daz yor tréïn eraïv'},
+    ],
+    testPrompts: ['7:00 AM','9:30 AM','12:00 PM','2:35 PM','4:45 PM','6:15 PM','8:00 PM','What time does your flight depart?','What time does your flight arrive?','What time does your train arrive?'],
+    tip: 'AM = avant midi (matin) — PM = après midi. Midi = noon ou 12:00 PM.'
+  },
+
+  lexique: {
+    id: 'lexique',
+    title: '💼 Lexique métier',
+    subtitle: 'Tous les mots essentiels pour la prise en charge',
+    storageKey: 'vocab_lexique',
+    items: [
+      // LIEUX
+      {id:'l1',  fr:'Gare',                      en:'station / train station',           pr:'stéïchn / tréïn stéïchn', cat:'📍 Lieux'},
+      {id:'l2',  fr:'Aéroport',                  en:'airport',                           pr:'érport', cat:'📍 Lieux'},
+      {id:'l3',  fr:'Terminal',                  en:'terminal',                          pr:'törminal', cat:'📍 Lieux'},
+      {id:'l4',  fr:'Sortie arrivées',            en:'arrivals exit',                     pr:'eraïvalz egzit', cat:'📍 Lieux'},
+      {id:'l5',  fr:'Hall des départs',           en:'departures hall',                   pr:'dipârtcherz hol', cat:'📍 Lieux'},
+      {id:'l6',  fr:'Devant',                    en:'in front of',                       pr:'in frônt ov', cat:'📍 Lieux'},
+      {id:'l7',  fr:'Derrière',                  en:'behind',                            pr:'bihaïnd', cat:'📍 Lieux'},
+      {id:'l8',  fr:'À droite',                  en:'on the right',                      pr:'on de raït', cat:'📍 Lieux'},
+      {id:'l9',  fr:'À gauche',                  en:'on the left',                       pr:'on de left', cat:'📍 Lieux'},
+      {id:'l10', fr:'En face de',                en:'opposite / across from',            pr:'opozit / akros from', cat:'📍 Lieux'},
+      {id:'l11', fr:'Magasin / boutique',        en:'shop / store',                      pr:'chop / stor', cat:'📍 Lieux'},
+      {id:'l12', fr:'Hôtel',                     en:'hotel',                             pr:'hôtel', cat:'📍 Lieux'},
+
+      // COURSE & RÉSERVATION
+      {id:'r1',  fr:'Réservation',               en:'booking / reservation',             pr:'bouking / rezervéïchn', cat:'🚕 Course'},
+      {id:'r2',  fr:'Adresse de départ',         en:'pick-up address',                   pr:'pik-ôp adres', cat:'🚕 Course'},
+      {id:'r3',  fr:'Destination',               en:'destination',                       pr:'destinéïchn', cat:'🚕 Course'},
+      {id:'r4',  fr:'Chauffeur',                 en:'driver',                            pr:'draïver', cat:'🚕 Course'},
+      {id:'r5',  fr:'Véhicule',                  en:'vehicle / car',                     pr:'vikl / kar', cat:'🚕 Course'},
+      {id:'r6',  fr:'Pancarte au nom du client', en:'sign with your name',               pr:'saïn wid yor néïm', cat:'🚕 Course'},
+      {id:'r7',  fr:'Votre réservation est confirmée', en:'your booking is confirmed',   pr:'yor bouking iz konfôrmd', cat:'🚕 Course'},
+
+      // BAGAGES
+      {id:'b1',  fr:'Bagages',                   en:'luggage / bags',                    pr:'lôgidj / bagz', cat:'🧳 Bagages'},
+      {id:'b2',  fr:'Valise',                    en:'suitcase',                          pr:'soütkéïs', cat:'🧳 Bagages'},
+      {id:'b3',  fr:'Bagage à main',             en:'carry-on bag / hand luggage',       pr:'kari-on bag / hand lôgidj', cat:'🧳 Bagages'},
+      {id:'b4',  fr:'Avez-vous des bagages ?',   en:'do you have any luggage?',          pr:'dou you hav éni lôgidj', cat:'🧳 Bagages'},
+      {id:'b5',  fr:'Coffre',                    en:'boot / trunk',                      pr:'bout / trônk', cat:'🧳 Bagages'},
+
+      // PASSAGERS
+      {id:'p1',  fr:'Passager',                  en:'passenger',                         pr:'pasèndjer', cat:'👥 Passagers'},
+      {id:'p2',  fr:'Adulte',                    en:'adult',                             pr:'adôlt', cat:'👥 Passagers'},
+      {id:'p3',  fr:'Enfant',                    en:'child',                             pr:'tchaïld', cat:'👥 Passagers'},
+      {id:'p4',  fr:'Siège auto / siège enfant', en:'child seat',                        pr:'tchaïld sit', cat:'👥 Passagers'},
+      {id:'p5',  fr:'Siège bébé',                en:'baby seat',                         pr:'béïbi sit', cat:'👥 Passagers'},
+      {id:'p6',  fr:'Quel âge a votre enfant ?', en:'how old is your child?',            pr:'haou ôld iz yor tchaïld', cat:'👥 Passagers'},
+      {id:'p7',  fr:'Mon enfant a X ans',        en:'my child is X years old',           pr:'maï tchaïld iz X yirz ôld', cat:'👥 Passagers'},
+
+      // TRANSPORT
+      {id:'t1',  fr:'Vol',                       en:'flight',                            pr:'flaït', cat:'✈️ Transport'},
+      {id:'t2',  fr:'Train',                     en:'train',                             pr:'tréïn', cat:'✈️ Transport'},
+      {id:'t3',  fr:'Numéro de vol',             en:'flight number',                     pr:'flaït nômbr', cat:'✈️ Transport'},
+      {id:'t4',  fr:'Heure de départ (vol)',     en:'departure time',                    pr:'dipârtchr taïm', cat:'✈️ Transport'},
+      {id:'t5',  fr:'Heure d\'arrivée',          en:'arrival time',                      pr:'eraïval taïm', cat:'✈️ Transport'},
+      {id:'t6',  fr:'Retard',                    en:'delay',                             pr:'diléï', cat:'✈️ Transport'},
+
+      // FORMULES TÉLÉPHONE
+      {id:'f1',  fr:'Patientez / Ne quittez pas', en:'please hold on',                  pr:'pliz hôld on', cat:'📞 Formules'},
+      {id:'f2',  fr:'Je vous reprends dans un instant', en:'I\'ll be right with you',   pr:'aïl bi raït wid you', cat:'📞 Formules'},
+      {id:'f3',  fr:'Avez-vous compris ?',       en:'is that clear? / do you understand?', pr:'iz dat klir / dou you ônderstand', cat:'📞 Formules'},
+      {id:'f4',  fr:'Pouvez-vous répéter ?',     en:'could you repeat that, please?',   pr:'koud you ripît dat pliz', cat:'📞 Formules'},
+      {id:'f5',  fr:'Pouvez-vous parler plus lentement ?', en:'could you speak more slowly, please?', pr:'koud you spik mor slôli pliz', cat:'📞 Formules'},
+      {id:'f6',  fr:'Pouvez-vous épeler ?',      en:'could you spell that, please?',    pr:'koud you spel dat pliz', cat:'📞 Formules'},
+      {id:'f7',  fr:'J\'ai bien noté',           en:'I\'ve got that',                   pr:'aïv got dat', cat:'📞 Formules'},
+      {id:'f8',  fr:'Est-ce exact ?',            en:'is that correct?',                 pr:'iz dat korekt', cat:'📞 Formules'},
+      {id:'f9',  fr:'Je comprends',              en:'I understand',                     pr:'aï ônderstand', cat:'📞 Formules'},
+      {id:'f10', fr:'Ne vous inquiétez pas',     en:'don\'t worry',                     pr:'dônt wori', cat:'📞 Formules'},
+      {id:'f11', fr:'Je suis désolé(e)',         en:'I\'m very sorry',                  pr:'aïm veri sori', cat:'📞 Formules'},
+      {id:'f12', fr:'Je vérifie pour vous',      en:'let me check for you',             pr:'let mi tchek for you', cat:'📞 Formules'},
+
+      // IDENTIFICATION
+      {id:'i1',  fr:'Nom de famille',            en:'last name / surname',               pr:'last néïm / sörném', cat:'📋 Identification'},
+      {id:'i2',  fr:'Prénom',                    en:'first name',                        pr:'först néïm', cat:'📋 Identification'},
+      {id:'i3',  fr:'Numéro de téléphone',       en:'phone number',                      pr:'fôn nômbr', cat:'📋 Identification'},
+      {id:'i4',  fr:'Puis-je avoir votre nom ?', en:'may I have your name, please?',     pr:'méï aï hav yor néïm pliz', cat:'📋 Identification'},
+    ],
+    testPrompts: [
+      'pick-up address','arrivals exit','child seat','how old is your child?',
+      'please hold on','is that correct?','do you have any luggage?',
+      'could you spell that please','your booking is confirmed',
+      'I\'ll be right with you'
+    ],
+    tip: 'Conseil pro : toujours demander le nom AVANT l\'adresse pour personnaliser l\'appel.'
+  }
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// VOCABULARY SYSTEM — Learning + Repetition + Test
+// ═══════════════════════════════════════════════════════════════════════
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let vocabState = {
+  section: null,       // 'alpha' | 'hours' | 'lexique'
+  phase: 'learn',     // 'learn' | 'test'
+  itemIndex: 0,
+  itemResults: {},    // {itemId: 'ok'|'fail'|'skip'}
+  testItems: [],
+  testIndex: 0,
+  testScore: 0,
+  hasListened: false,
+  attemptCount: 0,
+};
+
+let vocabRecognition = null;
+let vocabListening = false;
+
+// ── SAVE / LOAD VOCAB PROGRESS ───────────────────────────────────────────
+function saveVocabProgress(sectionId, data){
+  try {
+    const store = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    store['vocab_' + sectionId] = data;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  } catch(e){}
+}
+
+function loadVocabProgress(sectionId){
+  try {
+    const store = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return store['vocab_' + sectionId] || null;
+  } catch(e){ return null; }
+}
+
+function isVocabSectionUnlocked(sectionId){
+  if(sectionId === 'alpha') return true;
+  if(sectionId === 'hours'){
+    const p = loadVocabProgress('alpha');
+    return p && p.validated;
+  }
+  if(sectionId === 'lexique'){
+    const p = loadVocabProgress('hours');
+    return p && p.validated;
+  }
+  return false;
+}
+
+function isVocabSectionValidated(sectionId){
+  const p = loadVocabProgress(sectionId);
+  return p && p.validated;
+}
+
+// ── VOCAB SCREEN ENTRY ──────────────────────────────────────────────────
+function showVocabScreen(){
+  renderVocabMenu();
+  showScreen('vocab');
+}
+
+function renderVocabMenu(){
+  const el = document.getElementById('vocab-grid');
+  if(!el) return;
+
+  const sections = [
+    {key:'alpha',   data: VOCAB_SECTIONS.alphabet},
+    {key:'hours',   data: VOCAB_SECTIONS.hours},
+    {key:'lexique', data: VOCAB_SECTIONS.lexique},
+  ];
+
+  el.innerHTML = sections.map(({key, data})=>{
+    const unlocked = isVocabSectionUnlocked(key);
+    const validated = isVocabSectionValidated(key);
+    const progress = loadVocabProgress(key);
+    const learnPct = progress ? Math.round((progress.learnedCount||0) / data.items.length * 100) : 0;
+
+    return `<div class="vocab-section-card ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `startVocabSection('${key}')` : 'showLockedMsg()'}">
+      <div class="vsc-header">
+        <div class="vsc-title">${data.title}</div>
+        ${validated ? '<div class="vsc-badge">✅ Validé</div>' : unlocked ? '' : '<div class="vsc-badge locked-badge">🔒</div>'}
+      </div>
+      <div class="vsc-sub">${data.subtitle}</div>
+      <div class="vsc-stats">
+        <div class="vsc-stat">${data.items.length} éléments</div>
+        ${unlocked && !validated ? `<div class="vsc-prog-wrap"><div class="vsc-prog-fill" style="width:${learnPct}%"></div></div><div class="vsc-stat">${learnPct}%</div>` : ''}
+        ${validated ? '<div class="vsc-stat" style="color:var(--green)">Cours 100% · Prononciation 100%</div>' : ''}
+      </div>
+      <div class="vsc-tip">${data.tip}</div>
+    </div>`;
+  }).join('');
+}
+
+function showLockedMsg(){
+  alert('Valide la section précédente pour débloquer celle-ci !');
+}
+
+// ── START LEARNING PHASE ────────────────────────────────────────────────
+function startVocabSection(sectionKey){
+  const section = VOCAB_SECTIONS[{alpha:'alphabet',hours:'hours',lexique:'lexique'}[sectionKey]];
+  vocabState = {
+    section: sectionKey,
+    sectionData: section,
+    phase: 'learn',
+    itemIndex: 0,
+    itemResults: {},
+    testItems: [],
+    testIndex: 0,
+    testScore: 0,
+    hasListened: false,
+    attemptCount: 0,
+  };
+
+  // Restore partial progress
+  const saved = loadVocabProgress(sectionKey);
+  if(saved && saved.itemResults){
+    vocabState.itemResults = saved.itemResults;
+    // Find first non-ok item
+    const items = section.items;
+    const firstPending = items.findIndex(it => vocabState.itemResults[it.id] !== 'ok');
+    vocabState.itemIndex = firstPending === -1 ? items.length : firstPending;
+  }
+
+  renderVocabLearn();
+  showScreen('vocab-learn');
+}
+
+function renderVocabLearn(){
+  const {sectionData, itemIndex, itemResults} = vocabState;
+  const items = sectionData.items;
+  const total = items.length;
+  const doneCount = Object.values(itemResults).filter(v=>v==='ok').length;
+
+  // Check if all done → go to test
+  if(itemIndex >= total){
+    const allOk = items.every(it => itemResults[it.id] === 'ok');
+    if(allOk){
+      setTimeout(()=>startVocabTest(), 600);
+      return;
+    }
+    // Some failed — retry failed ones
+    const failedIdx = items.findIndex(it => itemResults[it.id] !== 'ok');
+    if(failedIdx >= 0){
+      vocabState.itemIndex = failedIdx;
+    }
+  }
+
+  const item = items[Math.min(vocabState.itemIndex, total-1)];
+  const pct = Math.round(doneCount / total * 100);
+
+  const el = document.getElementById('vocab-learn-content');
+  if(!el) return;
+
+  // Category header if lexique
+  const catHdr = item.cat ? `<div class="vocab-cat-label">${item.cat}</div>` : '';
+
+  el.innerHTML = `
+    <div class="vlearn-progress">
+      <div class="vlearn-prog-bar"><div class="vlearn-prog-fill" style="width:${pct}%"></div></div>
+      <div class="vlearn-prog-txt">${doneCount} / ${total} validés</div>
+    </div>
+
+    ${catHdr}
+    <div class="vlearn-card" id="vlearn-card">
+      <div class="vlearn-fr">${item.fr}</div>
+      <div class="vlearn-en" id="vlearn-en">${item.en}</div>
+      <div class="vlearn-pr">📖 ${item.pr}</div>
+    </div>
+
+    <div class="vlearn-actions">
+      <button class="vlearn-btn primary" id="vlearn-listen-btn" onclick="vocabListen()">
+        🔊 Écouter
+      </button>
+      <button class="vlearn-btn" id="vlearn-repeat-btn" onclick="vocabRepeat()" disabled>
+        🎤 Répéter
+      </button>
+    </div>
+
+    <div id="vlearn-feedback" class="vlearn-feedback" style="display:none"></div>
+
+    <div class="vlearn-nav">
+      <button class="btn-ghost" onclick="vocabPrev()" ${vocabState.itemIndex === 0 ? 'disabled' : ''}>← Précédent</button>
+      <button class="btn-ghost" id="vlearn-skip-btn" onclick="vocabSkip()" style="display:none">Passer →</button>
+    </div>
+  `;
+
+  vocabState.hasListened = false;
+  vocabState.attemptCount = 0;
+}
+
+// ── LISTEN ──────────────────────────────────────────────────────────────
+function vocabListen(){
+  const item = vocabState.sectionData.items[vocabState.itemIndex];
+  const btn = document.getElementById('vlearn-listen-btn');
+  btn.textContent = '🔊 En cours...';
+  btn.disabled = true;
+
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(item.en);
+  utt.lang = 'en-GB';
+  utt.rate = 0.8;
+  utt.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const enV = voices.find(v=>v.lang==='en-GB') || voices.find(v=>v.lang.startsWith('en'));
+  if(enV) utt.voice = enV;
+
+  utt.onend = ()=>{
+    btn.textContent = '🔊 Réécouter';
+    btn.disabled = false;
+    // Unlock repeat button
+    if(!vocabState.hasListened){
+      vocabState.hasListened = true;
+      const repeatBtn = document.getElementById('vlearn-repeat-btn');
+      if(repeatBtn){ repeatBtn.disabled = false; repeatBtn.classList.add('ready'); }
+    }
+  };
+  utt.onerror = ()=>{ btn.textContent = '🔊 Écouter'; btn.disabled = false; };
+  window.speechSynthesis.speak(utt);
+}
+
+// ── REPEAT / RECOGNIZE ──────────────────────────────────────────────────
+function vocabRepeat(){
+  const btn = document.getElementById('vlearn-repeat-btn');
+  btn.textContent = '🎤 En écoute...';
+  btn.disabled = true;
+  btn.classList.add('recording');
+
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    vocabFallbackInput();
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  vocabRecognition = new SR();
+  vocabRecognition.lang = 'en-GB';
+  vocabRecognition.continuous = false;
+  vocabRecognition.interimResults = false;
+
+  const item = vocabState.sectionData.items[vocabState.itemIndex];
+
+  vocabRecognition.onresult = e=>{
+    const said = e.results[0][0].transcript.trim().toLowerCase();
+    const expected = item.en.toLowerCase();
+    const ok = compareVocabPronunciation(said, expected);
+    vocabRecognition = null;
+    showVocabResult(ok, said, item);
+  };
+
+  vocabRecognition.onerror = e=>{
+    btn.textContent = '🎤 Répéter';
+    btn.disabled = false;
+    btn.classList.remove('recording');
+    if(e.error === 'no-speech'){
+      showVocabFeedback('⚠️ Rien entendu — essaie encore !', 'warn');
+    }
+    vocabRecognition = null;
+  };
+
+  vocabRecognition.onend = ()=>{
+    btn.textContent = '🎤 Répéter';
+    btn.disabled = false;
+    btn.classList.remove('recording');
+  };
+
+  vocabRecognition.start();
+}
+
+// ── COMPARE PRONUNCIATION ────────────────────────────────────────────────
+function compareVocabPronunciation(said, expected){
+  // Normalize both strings
+  const normalize = s => s.toLowerCase()
+    .replace(/[.,!?;:'"()\-\/]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const s = normalize(said);
+  const e = normalize(expected);
+
+  // Direct match
+  if(s === e || e.includes(s) || s.includes(e)) return true;
+
+  // Key word matching — extract key words from expected
+  const stopWords = new Set(['a','an','the','is','are','was','were','be','been','to','of','and','or','for','in','on','at','by']);
+  const keyWords = e.split(' ').filter(w => w.length > 2 && !stopWords.has(w));
+  const matchedWords = keyWords.filter(w => s.includes(w));
+
+  // Need to match at least 60% of key words
+  if(keyWords.length > 0 && matchedWords.length / keyWords.length >= 0.6) return true;
+
+  // Phonetic similarity for single words/letters
+  if(keyWords.length <= 2){
+    const sWords = s.split(' ');
+    for(const kw of keyWords){
+      for(const sw of sWords){
+        if(levenshtein(kw, sw) <= 2) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function levenshtein(a, b){
+  const m=a.length, n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// ── SHOW RESULT ──────────────────────────────────────────────────────────
+function showVocabResult(ok, said, item){
+  vocabState.attemptCount++;
+
+  const fb = document.getElementById('vlearn-feedback');
+  if(!fb) return;
+
+  if(ok){
+    fb.style.display = 'block';
+    fb.className = 'vlearn-feedback ok';
+    fb.innerHTML = `✅ Parfait ! <span style="opacity:.7;font-size:12px">Tu as dit : "${said}"</span>`;
+
+    // Mark item as ok
+    vocabState.itemResults[item.id] = 'ok';
+    saveVocabLearningProgress();
+
+    // Flash card green
+    const card = document.getElementById('vlearn-card');
+    if(card){ card.classList.add('validated'); }
+
+    // Auto-advance after 1.2s
+    setTimeout(()=>{
+      vocabState.itemIndex++;
+      renderVocabLearn();
+    }, 1200);
+
+  } else {
+    fb.style.display = 'block';
+    fb.className = 'vlearn-feedback fail';
+    fb.innerHTML = `❌ Tu as dit : "<em>${said}</em>"<br>Attendu : <strong>${item.en}</strong><br>
+      <button class="vlearn-listen-small" onclick="vocabListen()">🔊 Réécouter</button>
+      <button class="vlearn-btn-sm" onclick="vocabRepeat()">🎤 Réessayer</button>`;
+
+    // After 3 fails, show skip button
+    if(vocabState.attemptCount >= 3){
+      const skip = document.getElementById('vlearn-skip-btn');
+      if(skip) skip.style.display = 'inline-block';
+      vocabState.itemResults[item.id] = 'fail';
+      saveVocabLearningProgress();
+    }
+  }
+}
+
+function showVocabFeedback(msg, type){
+  const fb = document.getElementById('vlearn-feedback');
+  if(!fb) return;
+  fb.style.display = 'block';
+  fb.className = 'vlearn-feedback ' + type;
+  fb.innerHTML = msg;
+}
+
+function vocabFallbackInput(){
+  const said = prompt('Dis ce mot en anglais (mode texte) :');
+  if(said){
+    const item = vocabState.sectionData.items[vocabState.itemIndex];
+    showVocabResult(compareVocabPronunciation(said.trim().toLowerCase(), item.en.toLowerCase()), said, item);
+  }
+}
+
+function vocabPrev(){
+  if(vocabState.itemIndex > 0){
+    vocabState.itemIndex--;
+    renderVocabLearn();
+  }
+}
+
+function vocabSkip(){
+  vocabState.itemResults[vocabState.sectionData.items[vocabState.itemIndex].id] = 'skip';
+  vocabState.itemIndex++;
+  vocabState.attemptCount = 0;
+  renderVocabLearn();
+}
+
+function saveVocabLearningProgress(){
+  const {section, sectionData, itemResults} = vocabState;
+  const learnedCount = Object.values(itemResults).filter(v=>v==='ok').length;
+  saveVocabProgress(section, {
+    learnedCount,
+    total: sectionData.items.length,
+    itemResults,
+    validated: false,
+  });
+  renderVocabMenu();
+}
+
+// ── TEST PHASE ──────────────────────────────────────────────────────────
+function startVocabTest(){
+  const {sectionData, section} = vocabState;
+  const prompts = sectionData.testPrompts;
+  // Pick 10 random test items
+  const shuffled = [...prompts].sort(()=>Math.random()-0.5).slice(0,10);
+  vocabState.phase = 'test';
+  vocabState.testItems = shuffled;
+  vocabState.testIndex = 0;
+  vocabState.testScore = 0;
+  renderVocabTest();
+  showScreen('vocab-test');
+}
+
+function renderVocabTest(){
+  const {testItems, testIndex, testScore} = vocabState;
+  const total = testItems.length;
+  const item = testItems[testIndex];
+  const el = document.getElementById('vocab-test-content');
+  if(!el) return;
+
+  el.innerHTML = `
+    <div class="vtest-header">
+      <div class="vtest-score">Score : ${testScore} / ${total}</div>
+      <div class="vtest-prog">${testIndex + 1} / ${total}</div>
+    </div>
+    <div class="vtest-prog-bar"><div class="vtest-prog-fill" style="width:${(testIndex/total)*100}%"></div></div>
+
+    <div class="vtest-instruction">Répète cette phrase en anglais :</div>
+    <div class="vtest-card">
+      <button class="vtest-listen-btn" onclick="testListen('${item.replace(/'/g,"\\'")}')">🔊 Écouter</button>
+      <div class="vtest-phrase">${item}</div>
+    </div>
+
+    <button class="vlearn-btn primary" id="vtest-repeat-btn" onclick="testRepeat('${item.replace(/'/g,"\\'")}')">
+      🎤 Répéter maintenant
+    </button>
+    <div id="vtest-feedback" class="vlearn-feedback" style="display:none"></div>
+  `;
+  // Auto-speak the item
+  setTimeout(()=>testListen(item), 400);
+}
+
+function testListen(text){
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB'; utt.rate = 0.8; utt.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const enV = voices.find(v=>v.lang==='en-GB') || voices.find(v=>v.lang.startsWith('en'));
+  if(enV) utt.voice = enV;
+  window.speechSynthesis.speak(utt);
+}
+
+function testRepeat(expected){
+  const btn = document.getElementById('vtest-repeat-btn');
+  if(btn){ btn.textContent='🎤 En écoute...'; btn.disabled=true; }
+
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    const said = prompt('Dis cette phrase (mode texte) :');
+    if(said) testEval(said, expected);
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SR();
+  rec.lang = 'en-GB'; rec.continuous = false; rec.interimResults = false;
+
+  rec.onresult = e=>{
+    const said = e.results[0][0].transcript.trim();
+    testEval(said, expected);
+  };
+  rec.onerror = ()=>{
+    if(btn){ btn.textContent='🎤 Répéter maintenant'; btn.disabled=false; }
+    showVocabTestFeedback('⚠️ Rien entendu — réessaie !', false, null, expected);
+  };
+  rec.onend = ()=>{ if(btn){ btn.textContent='🎤 Répéter maintenant'; btn.disabled=false; } };
+  rec.start();
+}
+
+function testEval(said, expected){
+  const ok = compareVocabPronunciation(said.toLowerCase(), expected.toLowerCase());
+  if(ok) vocabState.testScore++;
+  showVocabTestFeedback(said, ok, ()=>{
+    vocabState.testIndex++;
+    if(vocabState.testIndex >= vocabState.testItems.length){
+      showVocabTestResult();
+    } else {
+      renderVocabTest();
+    }
+  }, expected);
+}
+
+function showVocabTestFeedback(said, ok, next, expected){
+  const fb = document.getElementById('vtest-feedback');
+  if(!fb) return;
+  fb.style.display = 'block';
+  fb.className = 'vlearn-feedback ' + (ok ? 'ok' : 'fail');
+  fb.innerHTML = ok
+    ? `✅ Excellent ! "${said}"`
+    : `❌ Tu as dit : "<em>${said}</em>"<br>Attendu : <strong>${expected}</strong>`;
+
+  if(next) setTimeout(next, ok ? 1000 : 1800);
+}
+
+function showVocabTestResult(){
+  const {testScore, testItems, section} = vocabState;
+  const total = testItems.length;
+  const pct = Math.round(testScore/total*100);
+  const validated = testScore === total;
+
+  const el = document.getElementById('vocab-test-content');
+  if(!el) return;
+
+  el.innerHTML = `
+    <div class="vtest-result ${validated ? 'validated' : 'not-validated'}">
+      <div class="vtest-result-emoji">${validated ? '🏆' : testScore >= 7 ? '💪' : '📚'}</div>
+      <div class="vtest-result-score">${testScore} / ${total}</div>
+      <div class="vtest-result-pct">${pct}%</div>
+      <div class="vtest-result-msg">
+        ${validated
+          ? '✅ Cours 100% · Prononciation 100% · Section validée !'
+          : testScore >= 7
+            ? `Bien ! Encore ${total-testScore} erreur(s). Réessaie pour valider à 100%.`
+            : 'Continue à t\'entraîner — reviens quand tu es prêt·e !'}
+      </div>
+      ${validated
+        ? `<button class="btn" onclick="showVocabScreen()" style="margin-top:16px">✅ Retour aux sections</button>`
+        : `<button class="btn btn-outline" onclick="startVocabTest()" style="margin-top:12px">🔄 Refaire le test</button>
+           <button class="btn-ghost" onclick="startVocabSection('${section}')" style="margin-top:8px">← Revoir le cours</button>`
+      }
+    </div>`;
+
+  // Save result
+  if(validated){
+    const saved = loadVocabProgress(section) || {};
+    saved.validated = true;
+    saved.testScore = testScore;
+    saved.testTotal = total;
+    saved.date = new Date().toLocaleDateString('fr-FR');
+    saveVocabProgress(section, saved);
+    renderVocabMenu();
+  }
+}
+
+
 </script>
 </body>
 </html>
