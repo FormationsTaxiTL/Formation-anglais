@@ -2318,71 +2318,125 @@ function renderVocabLearn(){
   const total = items.length;
   const doneCount = Object.values(itemResults).filter(v=>v==='ok').length;
 
-  // Check if all done → go to test
+  // All done → go to test
   if(itemIndex >= total){
     const allOk = items.every(it => itemResults[it.id] === 'ok');
-    if(allOk){
-      setTimeout(()=>startVocabTest(), 600);
-      return;
-    }
-    // Some failed — retry failed ones
+    if(allOk){ setTimeout(()=>startVocabTest(), 600); return; }
+    // Some failed — find first non-ok
     const failedIdx = items.findIndex(it => itemResults[it.id] !== 'ok');
-    if(failedIdx >= 0){
-      vocabState.itemIndex = failedIdx;
-    }
+    if(failedIdx >= 0){ vocabState.itemIndex = failedIdx; }
   }
 
   const item = items[Math.min(vocabState.itemIndex, total-1)];
   const pct = Math.round(doneCount / total * 100);
+  const catHdr = item.cat ? `<div class="vocab-cat-label">${item.cat}</div>` : '';
+
+  // Generate 3 QCM options (correct + 2 distractors from same section)
+  const distractors = items
+    .filter(it => it.id !== item.id)
+    .sort(()=>Math.random()-0.5)
+    .slice(0,2)
+    .map(it=>it.en);
+  const allOpts = [item.en, ...distractors].sort(()=>Math.random()-0.5);
+  const correctIdx = allOpts.indexOf(item.en);
+
+  vocabState.currentOpts = allOpts;
+  vocabState.correctIdx = correctIdx;
+  vocabState.selectionMade = false;
+  vocabState.selectionCorrect = false;
+  vocabState.hasListened = false;
+  vocabState.attemptCount = 0;
 
   const el = document.getElementById('vocab-learn-content');
   if(!el) return;
-
-  // Category header if lexique
-  const catHdr = item.cat ? `<div class="vocab-cat-label">${item.cat}</div>` : '';
 
   el.innerHTML = `
     <div class="vlearn-progress">
       <div class="vlearn-prog-bar"><div class="vlearn-prog-fill" style="width:${pct}%"></div></div>
       <div class="vlearn-prog-txt">${doneCount} / ${total} validés</div>
     </div>
+    <div class="vlearn-attempt-counter" id="vlearn-attempts" style="display:none"></div>
 
     ${catHdr}
     <div class="vlearn-card" id="vlearn-card">
       <div class="vlearn-fr">${item.fr}</div>
-      <div class="vlearn-en" id="vlearn-en">${item.en}</div>
       <div class="vlearn-pr">📖 ${item.pr}</div>
     </div>
 
-    <div class="vlearn-actions">
-      <button class="vlearn-btn primary" id="vlearn-listen-btn" onclick="vocabListen()">
-        🔊 Écouter
-      </button>
-      <button class="vlearn-btn" id="vlearn-repeat-btn" onclick="vocabRepeat()" disabled>
-        🎤 Répéter
-      </button>
+    <div class="vlearn-question">Comment dit-on cette phrase en anglais ?</div>
+
+    <div class="vlearn-opts" id="vlearn-opts">
+      ${allOpts.map((opt,i)=>`
+        <button class="vlearn-opt" onclick="selectVocabOpt(${i})">${opt}</button>
+      `).join('')}
+    </div>
+
+    <div id="vlearn-after-select" style="display:none">
+      <div class="vlearn-correct-answer" id="vlearn-correct-box">
+        <span style="color:var(--muted);font-size:12px">Bonne réponse :</span>
+        <div class="vlearn-en" id="vlearn-en">${item.en}</div>
+      </div>
+      <div class="vlearn-actions">
+        <button class="vlearn-btn primary" id="vlearn-listen-btn" onclick="vocabListen()">
+          🔊 Écouter la bonne réponse
+        </button>
+        <button class="vlearn-btn" id="vlearn-repeat-btn" onclick="vocabRepeat()" disabled>
+          🎤 Tester ma prononciation
+        </button>
+      </div>
     </div>
 
     <div id="vlearn-feedback" class="vlearn-feedback" style="display:none"></div>
 
     <div class="vlearn-nav">
-      <button class="btn-ghost" onclick="vocabPrev()" ${vocabState.itemIndex === 0 ? 'disabled' : ''}>← Précédent</button>
+      <button class="btn-ghost" onclick="vocabPrev()" ${vocabState.itemIndex===0?'disabled':''}>← Précédent</button>
       <button class="btn-ghost" id="vlearn-skip-btn" onclick="vocabSkip()" style="display:none">Passer →</button>
     </div>
   `;
-
-  vocabState.hasListened = false;
-  vocabState.attemptCount = 0;
 }
 
-// ── LISTEN ──────────────────────────────────────────────────────────────
+function selectVocabOpt(idx){
+  if(vocabState.selectionMade) return;
+  vocabState.selectionMade = true;
+
+  const opts = document.querySelectorAll('.vlearn-opt');
+  const correct = vocabState.correctIdx;
+  const isCorrect = idx === correct;
+  vocabState.selectionCorrect = isCorrect;
+
+  // Visual feedback on options
+  opts.forEach((btn,i)=>{
+    btn.disabled = true;
+    if(i === correct) btn.classList.add('opt-correct');
+    else if(i === idx && !isCorrect) btn.classList.add('opt-wrong');
+  });
+
+  // Show answer section
+  const afterSel = document.getElementById('vlearn-after-select');
+  if(afterSel) afterSel.style.display = 'block';
+
+  // Show selection result
+  const fb = document.getElementById('vlearn-feedback');
+  if(fb){
+    fb.style.display = 'block';
+    fb.className = 'vlearn-feedback ' + (isCorrect ? 'ok' : 'fail');
+    fb.innerHTML = isCorrect
+      ? "✅ Bonne réponse ! Maintenant écoute et répète."
+      : "❌ Ce n'était pas la bonne réponse. Écoute et répète quand même.";
+  }
+
+  // Auto-listen after selection
+  setTimeout(()=>vocabListen(), 600);
+}
+
+
 function vocabListen(){
   const item = vocabState.sectionData.items[vocabState.itemIndex];
   const btn = document.getElementById('vlearn-listen-btn');
-  btn.textContent = '🔊 En cours...';
-  btn.disabled = true;
+  if(btn){ btn.textContent = '🔊 En cours...'; btn.disabled = true; }
 
   window.speechSynthesis.cancel();
+  // Read ONLY item.en — never item.pr or item.fr
   const utt = new SpeechSynthesisUtterance(item.en);
   utt.lang = 'en-GB';
   utt.rate = 0.8;
@@ -2392,16 +2446,14 @@ function vocabListen(){
   if(enV) utt.voice = enV;
 
   utt.onend = ()=>{
-    btn.textContent = '🔊 Réécouter';
-    btn.disabled = false;
-    // Unlock repeat button
+    if(btn){ btn.textContent = '🔊 Réécouter'; btn.disabled = false; }
     if(!vocabState.hasListened){
       vocabState.hasListened = true;
       const repeatBtn = document.getElementById('vlearn-repeat-btn');
       if(repeatBtn){ repeatBtn.disabled = false; repeatBtn.classList.add('ready'); }
     }
   };
-  utt.onerror = ()=>{ btn.textContent = '🔊 Écouter'; btn.disabled = false; };
+  utt.onerror = ()=>{ if(btn){ btn.textContent = '🔊 Écouter'; btn.disabled = false; } };
   window.speechSynthesis.speak(utt);
 }
 
@@ -2525,9 +2577,15 @@ function showVocabResult(ok, said, item){
   } else {
     fb.style.display = 'block';
     fb.className = 'vlearn-feedback fail';
+    const attLeft = Math.max(0, 3 - vocabState.attemptCount);
     fb.innerHTML = `❌ Tu as dit : "<em>${said}</em>"<br>Attendu : <strong>${item.en}</strong><br>
       <button class="vlearn-listen-small" onclick="vocabListen()">🔊 Réécouter</button>
-      <button class="vlearn-btn-sm" onclick="vocabRepeat()">🎤 Réessayer</button>`;
+      <button class="vlearn-btn-sm" onclick="vocabRepeat()">🎤 Réessayer</button>
+      <span style="font-size:11px;color:var(--muted);display:block;margin-top:6px">Tentative ${vocabState.attemptCount}/3${attLeft>0?' — encore '+attLeft+' essai(s)':' — tu peux passer'}</span>`;
+
+    // Show attempt counter
+    const counter = document.getElementById('vlearn-attempts');
+    if(counter){ counter.style.display='block'; counter.textContent = 'Tentative '+vocabState.attemptCount+' / 3'; }
 
     // After 3 fails, show skip button
     if(vocabState.attemptCount >= 3){
