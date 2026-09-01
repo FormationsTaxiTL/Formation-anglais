@@ -288,7 +288,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
       <div class="field"><label>Prénom</label><input id="i-prenom" type="text" placeholder="Ton prénom" autocomplete="given-name"/></div>
       <div class="field"><label>Nom</label><input id="i-nom" type="text" placeholder="Ton nom" autocomplete="family-name"/></div>
       <div class="field"><label>Date de la session</label><input id="i-date" type="date"/></div>
-      <div class="field"><label>Code d'accès</label><input id="i-code" type="password" placeholder="Code fourni par ton formateur"/></div>
+      <div class="field"><label>Code d'accès</label><input id="i-code" type="password" placeholder="Code fourni par ton formateur" oninput="if(this.value==='TaxiTLformation')document.getElementById('api-key-field').style.display='block'"/></div>
       <div class="login-div">Consentements RGPD</div>
       <div class="check-row" onclick="tog('rgpd1')">
         <input type="checkbox" id="rgpd1" onclick="event.stopPropagation()">
@@ -535,7 +535,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 <script>
 // ═══════════════════ CONFIG ═══════════════════
 const ACCESS_CODE = "TaxiTLformation";
-const API_KEY = "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";
+const API_KEY = localStorage.getItem('taxitl_api_key') || '';
 
 // ═══════════════════ VOCAB ═══════════════════
 const VOCAB = [
@@ -1161,7 +1161,12 @@ function doLogin(){
   document.getElementById('gdate').textContent=`Session du ${fmtDate(date)}`;
   sessionStartDate = date;
   buildSimList(); buildVocab(); updateProg(); checkModuleValidation();
-  showScreen('menu');
+  // Save API key if provided
+      const apiKeyInput = document.getElementById('i-apikey');
+      if(apiKeyInput && apiKeyInput.value.trim().startsWith('sk-ant-')) {
+        localStorage.setItem('taxitl_api_key', apiKeyInput.value.trim());
+      }
+      showScreen('menu');
 }
 function showErr(msg){ const e=document.getElementById('lerr'); e.textContent=msg; e.classList.add('show'); }
 function logout(){ showScreen('login'); }
@@ -1346,7 +1351,7 @@ async function callAI(userMsg){
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'x-api-key':API_KEY,
+        'x-api-key':currentKey,
         'anthropic-version':'2023-06-01',
         'anthropic-dangerous-direct-browser-access':'true'
       },
@@ -1423,7 +1428,7 @@ async function endSim(){
   try{
     const res=await fetch("https://api.anthropic.com/v1/messages",{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json','x-api-key':currentKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:"claude-sonnet-4-5",max_tokens:600,
         system:`You are a professional call centre trainer. Evaluate the trainee's conversation. Respond ONLY with valid JSON (no markdown, no preamble):
